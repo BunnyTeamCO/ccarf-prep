@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CCAR-F Prep — Claude Certified Architect Foundations</title>
+<!-- v2: guía gráfica con analogías, diagramas y frases-resumen -->
 <style>
 :root{
   --bg:#0f1117;--panel:#171a23;--panel2:#1e2230;--border:#2a2f3f;
@@ -80,6 +81,11 @@ td,th{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
 .pass{color:var(--green)}.fail{color:var(--red)}
 .tag{font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:99px;margin-left:6px}
 .tag.multi{background:rgba(224,179,76,.18);color:var(--yellow)}
+.analogy{display:flex;gap:12px;align-items:flex-start;background:rgba(217,119,72,.08);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px;margin:12px 0;font-size:.9rem;line-height:1.55}
+.analogy .emo{font-size:1.9rem;line-height:1.1;flex-shrink:0}
+.frase{background:linear-gradient(135deg,rgba(217,119,72,.16),rgba(91,141,217,.13));border:1px solid var(--accent);border-radius:10px;padding:11px 16px;margin:14px 0 4px;font-weight:700;font-size:.92rem;text-align:center}
+.diagram{margin:12px 0;overflow-x:auto}
+.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
 @media(max-width:640px){header h1{font-size:.9rem}nav button{padding:6px 8px;font-size:.8rem}}
 </style>
 </head>
@@ -210,6 +216,167 @@ const TEMAS = [
 {id:"5.6",d:5,t:"Procedencia y manejo de incertidumbre",x:`
 <h4>Explicación</h4><p>La atribución se pierde al resumir → <b>mapeos claim-source</b> (URL, documento, excerpt, fecha) que la síntesis PRESERVA. Estadísticas en conflicto de fuentes creíbles → <b>anotar con atribución</b>, nunca elegir arbitrariamente. <b>Fechas de publicación obligatorias</b> → diferencias temporales no son contradicciones. Reportes: hallazgos <b>establecidos vs disputados</b>. Renderizar por tipo: finanzas en tablas, noticias en prosa.</p>`}
 ];
+/* ================= DIAGRAMAS SVG ================= */
+function _box(x,y,w,h,l1,l2,stroke){
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="9" fill="var(--panel)" stroke="${stroke}" stroke-width="1.6"/>`+
+  `<text x="${x+w/2}" y="${y+(l2?h/2-3:h/2+4)}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">${l1}</text>`+
+  (l2?`<text x="${x+w/2}" y="${y+h/2+14}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${l2}</text>`:"");
+}
+function svgFlow(steps,opts){
+  opts=opts||{};
+  const bw=122,bh=48,gap=34,y=8;
+  const W=8+steps.length*bw+(steps.length-1)*gap+8, H=opts.loop?100:64;
+  let s=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+  steps.forEach((st,i)=>{
+    const x=8+i*(bw+gap);
+    s+=_box(x,y,bw,bh,st.t,st.s,st.gate?"var(--accent)":"var(--blue)");
+    if(i<steps.length-1){
+      const ax=x+bw, ax2=x+bw+gap-4, ay=y+bh/2;
+      s+=`<line x1="${ax}" y1="${ay}" x2="${ax2-6}" y2="${ay}" stroke="var(--muted)" stroke-width="1.6"/><polygon points="${ax2},${ay} ${ax2-8},${ay-4.5} ${ax2-8},${ay+4.5}" fill="var(--muted)"/>`;
+    }
+  });
+  if(opts.loop){
+    const fc=8+bw/2, lc=8+(steps.length-1)*(bw+gap)+bw/2;
+    s+=`<path d="M ${lc} ${y+bh+4} L ${lc} 82 L ${fc} 82 L ${fc} ${y+bh+10}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="5 4"/>`+
+       `<polygon points="${fc},${y+bh+4} ${fc-4.5},${y+bh+12} ${fc+4.5},${y+bh+12}" fill="var(--accent)"/>`+
+       `<text x="${(fc+lc)/2}" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="var(--accent)">${opts.loopLabel||"repite"}</text>`;
+  }
+  return s+"</svg>";
+}
+function svgVs(tL,iL,tR,iR){
+  const pw=248,gap=16,rows=Math.max(iL.length,iR.length),H=40+rows*21+10;
+  let s=`<svg viewBox="0 0 ${pw*2+gap+8} ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+  [[4,tL,iL,"var(--red)"],[4+pw+gap,tR,iR,"var(--green)"]].forEach(p=>{
+    const [x,t,items,c]=p;
+    s+=`<rect x="${x}" y="4" width="${pw}" height="${H-8}" rx="10" fill="var(--panel)" stroke="${c}" stroke-width="1.6"/>`+
+       `<rect x="${x}" y="4" width="${pw}" height="28" rx="10" fill="${c}" fill-opacity="0.16"/>`+
+       `<text x="${x+pw/2}" y="23" text-anchor="middle" font-size="12.5" font-weight="800" fill="var(--text)">${t}</text>`;
+    items.forEach((it,i)=>{ s+=`<text x="${x+14}" y="${52+i*21}" font-size="11.5" fill="var(--text)">• ${it}</text>`; });
+  });
+  return s+"</svg>";
+}
+function svgHub(center,spokes){
+  const H=Math.max(spokes.length*54,60)+8;
+  let s=`<svg viewBox="0 0 530 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+  const cy=H/2;
+  spokes.forEach((sp,i)=>{
+    const sy=8+i*54+22;
+    s+=`<line x1="158" y1="${cy}" x2="300" y2="${sy}" stroke="var(--muted)" stroke-width="1.4"/>`;
+  });
+  s+=_box(8,cy-24,150,48,center,null,"var(--accent)");
+  spokes.forEach((sp,i)=>{
+    const sy=8+i*54;
+    s+=`<rect x="300" y="${sy}" width="224" height="44" rx="9" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.5"/>`+
+       `<text x="${412}" y="${sy+27}" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--text)">${sp}</text>`;
+  });
+  return s+"</svg>";
+}
+function svgStack(layers){
+  const H=layers.length*50+6;
+  let s=`<svg viewBox="0 0 530 ${H}" xmlns="http://www.w3.org/2000/svg" role="img">`;
+  const cols=["var(--accent)","var(--blue)","var(--green)","var(--yellow)"];
+  layers.forEach((l,i)=>{
+    const w=500-i*56, x=(530-w)/2, y=4+i*50;
+    s+=`<rect x="${x}" y="${y}" width="${w}" height="42" rx="9" fill="var(--panel)" stroke="${cols[i%4]}" stroke-width="1.6"/>`+
+       `<text x="265" y="${y+26}" text-anchor="middle" font-size="11.8" font-weight="600" fill="var(--text)">${l}</text>`;
+  });
+  return s+"</svg>";
+}
+
+/* ================= CONTENIDO GRÁFICO POR TEMA ================= */
+const EXTRA={
+"1.1":{e:"🍽️",a:"El mesero: lleva tu pedido a la cocina (tool call), vuelve con el plato (tool_result) y te pregunta si deseas algo más. Solo cuando dices «nada más» (end_turn) te trae la cuenta. Un buen mesero nunca decide por ti que ya terminaste (parsear tu tono = anti-patrón) ni te echa del restaurante a las 5 vueltas (tope de iteraciones como parada).",
+ g:()=>svgFlow([{t:"📨 Request"},{t:"🤖 Claude",s:"decide"},{t:"stop_reason:",s:"tool_use"},{t:"🔧 Ejecutar",s:"y devolver"}],{loop:true,loopLabel:"repite hasta end_turn → FIN ✅"}),
+ f:"El loop vive y muere por stop_reason: tool_use = sigue, end_turn = fin."},
+"1.2":{e:"👨‍🍳",a:"La cocina de un restaurante: el chef no pica cebolla — decide el menú, reparte tareas a cocineros especializados y prueba cada plato antes de que salga. Los cocineros no se gritan de estación a estación: todo pasa por el chef. Y cada cocinero recibe SU receta, no la historia completa del restaurante. Ojo: si el chef solo pide postres, la cena saldrá incompleta (descomposición estrecha).",
+ g:()=>svgHub("👨‍🍳 Coordinador",["🔎 Subagente: busca web","📄 Subagente: analiza docs","✍️ Subagente: sintetiza","📊 Subagente: reporta"]),
+ f:"El coordinador dirige y no cocina; los subagentes no comparten memoria ni se hablan entre sí."},
+"1.3":{e:"🎒",a:"El empleado nuevo en su primer día: no sabe nada de lo que se habló ayer en la oficina. Si quieres que haga algo bien, le entregas TODAS las instrucciones y materiales en su carpeta de bienvenida (el prompt). Y para poder contratar ayudantes, el jefe necesita la llave del área de contratación (Task en allowedTools). Si quieres dos ayudantes trabajando a la vez, los contratas a ambos en la misma llamada.",
+ g:()=>svgFlow([{t:"Coordinador"},{t:"🔑 Task",s:"en allowedTools",gate:true},{t:"Prompt con",s:"TODO el contexto"},{t:"🧑‍🍳 Subagente"}]),
+ f:"Al subagente se le da TODO en su prompt; para contratarlo, Task debe estar en allowedTools."},
+"1.4":{e:"🪩",a:"El portero de la discoteca: pide identificación ANTES de dejarte entrar. No sirve un cartel que diga «por favor verifique su identidad» (prompt) — hay una persona que físicamente bloquea la puerta (hook/gate). Y cuando el portero escala un problema al gerente, no le dice «ven»: le pasa una nota con todo — quién es, qué pasó, cuánto cuesta, qué recomienda (handoff estructurado).",
+ g:()=>svgFlow([{t:"Cliente pide",s:"refund 💸"},{t:"🔒 GATE",s:"¿ID verificado?",gate:true},{t:"process_refund",s:"✅"}]),
+ f:"Si debe cumplirse SIEMPRE, lo garantiza código, no un prompt amable."},
+"1.5":{e:"🛃",a:"La aduana del aeropuerto: los paquetes llegan de países distintos con etiquetas distintas (tools con formatos diferentes), y la aduana los inspecciona y re-etiqueta en un formato uniforme antes de entregarlos (PostToolUse). Además hay una báscula que rechaza automáticamente los paquetes prohibidos — refunds de más de $500 — y los manda a la oficina del supervisor (intercepción + escalación).",
+ g:()=>svgFlow([{t:"Tools devuelven",s:"formatos 🥴"},{t:"🪝 PostToolUse",s:"normaliza",gate:true},{t:"Claude recibe",s:"limpio ✨"}]),
+ f:"PostToolUse limpia lo que entra; los hooks de intercepción bloquean lo que no debe salir."},
+"1.6":{e:"🥘",a:"Receta vs excursión: para hacer una torta sigues la receta paso a paso — los pasos se conocen de antemano (prompt chaining). Para explorar una ciudad nueva decides la siguiente parada según lo que vayas descubriendo (descomposición dinámica). Hornear con mapa de turista o explorar con receta: ambos terminan mal.",
+ g:()=>svgVs("📖 Receta fija (chaining)",["Pasos conocidos","Mismo orden siempre","Ej: review multi-aspecto"],"🗺️ Exploración (dinámica)",["Subtareas emergen","Plan que se adapta","Ej: tests a código legacy"]),
+ f:"Tarea predecible → receta (chaining); tarea abierta → exploración adaptativa."},
+"1.7":{e:"🎮",a:"El videojuego: fork_session es guardar la partida y probar dos caminos distintos desde el mismo punto guardado. ¿Y volver a una partida de hace un mes cuando el juego ya se actualizó? Mala idea: mejor empezar nivel nuevo llevándote tu resumen de lo aprendido (sesión nueva + resumen estructurado) que cargar una partida corrupta (tool results obsoletos). Si solo cambiaron dos cosas, avisa cuáles al retomar.",
+ g:()=>svgHub("💾 Análisis base",["🅰️ fork: estrategia A","🅱️ fork: estrategia B"]),
+ f:"Contexto vigente → --resume; contexto viejo → sesión nueva con resumen; comparar caminos → fork_session."},
+"2.1":{e:"🫙",a:"Los frascos de la cocina: si dos frascos dicen solo «polvo blanco», tarde o temprano pondrás sal en el café. Las etiquetas buenas dicen qué es, para qué sirve, cómo se usa y «no confundir con el de al lado». Claude elige sus herramientas leyendo las etiquetas — si se confunde, el primer arreglo es siempre mejorar la etiqueta, no pegar fotos de ejemplo en la nevera (few-shot) ni contratar a alguien que sirva el café por ti (routing layer).",
+ g:()=>svgVs("🧂 Etiqueta pobre",["«Recupera info»","Claude adivina","Misrouting"],"🏷️ Etiqueta rica",["Qué hace y cuándo","Formatos y ejemplos","Límites vs similares"]),
+ f:"Claude elige la herramienta leyendo su etiqueta: descripción rica = selección fiable."},
+"2.2":{e:"🤕",a:"El niño que dice «me duele»: no ayuda en nada. «Me duele la rodilla derecha cuando corro» permite actuar. Un error «Operation failed» es «me duele»; uno estructurado — qué categoría, si conviene reintentar, qué se alcanzó a hacer — es el que permite decidir. Y ojo: «busqué y no encontré nada» NO es un dolor: es una respuesta sana con cero resultados.",
+ g:()=>svgVs("❌ «Operation failed»",["Sin categoría","Sin ¿retryable?","Agente a ciegas"],"✅ Error estructurado",["errorCategory","isRetryable","Parciales + qué se intentó"]),
+ f:"Un buen error dice qué falló, si conviene reintentar y qué se alcanzó a lograr."},
+"2.3":{e:"🧰",a:"El cinturón del plomero: lleva 5 herramientas, no las 200 de la ferretería — con demasiadas opciones hasta el mejor agarra la llave equivocada. Si necesita algo raro, llama al almacén (coordinador) en vez de cargarlo todo. Y a veces el capataz ordena: «usa alguna herramienta, no me respondas con palabras» (tool_choice: any) o «empieza SÍ o SÍ por el medidor» (forzada).",
+ g:()=>svgVs("🧰 18 herramientas",["Decisión difusa","Misuse cruzado","Selección errática"],"🛠️ 4-5 por rol",["Scoped por especialidad","verify_fact acotada","Selección fiable"]),
+ f:"Pocas herramientas bien elegidas por rol; tool_choice decide si puede, debe o DEBE-esta."},
+"2.4":{e:"🏢",a:"El tablón del edificio vs tu nevera: los avisos para TODOS los vecinos van al tablón de la entrada (.mcp.json, compartido por git); tus recordatorios personales van en tu nevera (~/.claude.json). Nadie escribe la clave del wifi en el tablón: se pone «pídesela al administrador» (${VAR}). Y el catálogo de qué hay en el edificio (MCP resources) evita que la gente abra todas las puertas para ver qué encuentra.",
+ g:()=>svgStack(["🏢 .mcp.json — del equipo (git) + ${VAR} para secretos","🏠 ~/.claude.json — personal / experimental","📚 MCP resources — catálogo sin exploración"]),
+ f:".mcp.json para el equipo, ~/.claude.json para ti, ${VAR} para no filtrar secretos."},
+"2.5":{e:"📚",a:"La biblioteca: Glob es buscar libros por el título en el estante («todos los que terminen en .test.tsx»); Grep es abrir los libros y buscar una palabra dentro. Para investigar un tema no lees toda la biblioteca: primero ubicas los libros correctos (Grep en puntos de entrada) y vas siguiendo las referencias (Read). Si el bibliotecario no encuentra la página exacta para corregir una errata (Edit falla), se reescribe la hoja completa (Read + Write).",
+ g:()=>svgVs("🔍 Grep",["Busca DENTRO","Contenido: funciones,","errores, imports"],"📁 Glob",["Busca ARCHIVOS","Por nombre/patrón","**/*.test.tsx"]),
+ f:"Glob encuentra archivos, Grep encuentra contenido, Edit toca lo puntual (y Read+Write lo rescata)."},
+"3.1":{e:"🏠",a:"Las reglas de la casa: las de toda la familia están pegadas en la cocina (nivel proyecto: las ve todo el equipo vía git), tus notas privadas viven en tu cuaderno (nivel usuario: nadie más las hereda — la trampa clásica del compañero nuevo), y las reglas del cuarto de juegos solo aplican ahí (nivel directorio). Si la lista de la cocina crece a 800 renglones, se divide en carpetas por tema (.claude/rules/). ¿Dudas de qué reglas están activas? Se revisa la lista (/memory).",
+ g:()=>svgStack(["🏢 Proyecto — todo el equipo, viaja por git","🏠 Usuario ~/.claude — solo tú, NO viaja por git","📁 Directorio — solo esa carpeta"]),
+ f:"Lo del equipo al proyecto, lo tuyo al usuario, lo local al directorio — y /memory para auditar."},
+"3.2":{e:"🔔",a:"Timbre vs electrodoméstico: un slash command es un timbre — lo presionas y hace su función, y si está en la entrada del edificio (.claude/commands/) todos los vecinos pueden usarlo. Una skill es un electrodoméstico con manual: puede pedirte parámetros si la enciendes sin nada (argument-hint), trabajar en su propio cuarto sin ensuciar la casa (context: fork) y con acceso limitado a los enchufes (allowed-tools).",
+ g:()=>svgVs("🔔 Slash command",[".claude/commands/","Atajo directo","Equipo vía git"],"🎛️ Skill",["SKILL.md + frontmatter","context: fork aísla","allowed-tools limita"]),
+ f:"Command = atajo compartible; skill = mini-programa con permisos y cuarto propio."},
+"3.3":{e:"🥼",a:"La bata de laboratorio: la regla «usar bata» no aplica en toda la escuela — se activa solo cuando entras a un laboratorio, sin importar en qué piso esté. Las rules con glob (paths: [\"**/*.test.tsx\"]) se cargan solo al editar archivos que coinciden con el patrón, estén en la carpeta que estén. Un cartel por salón (CLAUDE.md por directorio) no funciona cuando hay laboratorios repartidos por todo el edificio.",
+ g:()=>svgFlow([{t:"Editas",s:"Button.test.tsx"},{t:"¿Match glob?",s:"**/*.test.tsx",gate:true},{t:"Regla cargada",s:"solo aquí ✅"}]),
+ f:"Las rules con glob siguen al TIPO de archivo, no a la carpeta."},
+"3.4":{e:"📐",a:"Arquitecto vs foco: para remodelar la casa entera primero se dibujan planos (plan mode) — nadie tumba paredes «a ver qué pasa». Para cambiar un foco quemado: escalera y listo (ejecución directa). Y si la remodelación exige revisar todos los rincones, mandas a un ayudante a inspeccionar y que te traiga SOLO el resumen (Explore subagent), no las 4 horas de video.",
+ g:()=>svgVs("📐 Plan mode",["Gran escala","Decisiones de arquitectura","Explora antes de tocar"],"🔧 Directa",["Cambio puntual","Bug con stack trace","Sin ceremonia"]),
+ f:"Grande y con decisiones → plan mode; pequeño y claro → directo."},
+"3.5":{e:"🛏️",a:"Enseñar a hacer la cama: mostrarla hecha 2 veces enseña más que un discurso de 20 minutos (ejemplos input/output). Si el niño la hace mal, le señalas exactamente qué arruga quedó (test-driven: compartir el fallo), no le repites el discurso. Antes de encargarle algo que nunca ha hecho, deja que ÉL te pregunte sus dudas (interview pattern). Y si la sábana y la cobija se enredan entre sí, se arreglan juntas; si son cosas sueltas, una por una.",
+ g:()=>svgFlow([{t:"2-3 ejemplos",s:"input/output"},{t:"Claude capta",s:"el patrón"},{t:"Tests fallan →",s:"le das los fallos"},{t:"♻️ Mejora"}]),
+ f:"2-3 ejemplos concretos valen más que mil palabras de especificación."},
+"3.6":{e:"🏭",a:"La fábrica automática: un robot de la línea nocturna no puede detenerse a preguntar «¿continúo?» a las 3 AM — corre en modo automático (-p) y entrega informes en formato estándar que las máquinas siguientes entienden (--output-format json + schema). El manual de calidad de la fábrica (CLAUDE.md) le dice qué revisar. Y el inspector de calidad nunca es el mismo robot que armó la pieza (instancia independiente para review).",
+ g:()=>svgFlow([{t:"CI corre",s:"claude -p"},{t:"json +",s:"--json-schema"},{t:"💬 Comentarios",s:"en el PR"}]),
+ f:"-p para que el CI no se cuelgue, JSON con schema para que las máquinas entiendan, otra instancia para revisar."},
+"4.1":{e:"🙃",a:"«Pórtate bien»: no funciona porque cada niño lo interpreta a su modo. «No corras junto a la piscina y no comas dulces antes de cenar» sí funciona. Los criterios explícitos y categóricos (qué reportar, qué omitir, con ejemplos por nivel) le ganan siempre a «sé conservador». Y si una regla genera regaños injustos todo el día, se suspende esa regla mientras se redacta mejor — o los niños dejarán de escuchar TODAS las reglas.",
+ g:()=>svgVs("😵 Vago",["«sé conservador»","«alta confianza»","No calibra nada"],"🎯 Explícito",["Qué reportar","Qué omitir","Ejemplos por nivel"]),
+ f:"Criterios categóricos con ejemplos > «sé conservador»."},
+"4.2":{e:"🎨",a:"Aprender con ejemplos: antes de pedirle al niño que dibuje un gato, le muestras 3 dibujos de gatos — incluyendo uno difícil (un gato dormido hecho bolita) explicando POR QUÉ es un gato (el razonamiento). Así aprende a reconocer gatos nuevos que jamás ha visto, no a copiar tus tres dibujos. 2-4 ejemplos bien elegidos, apuntando a los casos ambiguos.",
+ g:()=>svgFlow([{t:"2-4 ejemplos",s:"con razonamiento"},{t:"Ambiguos",s:"resueltos"},{t:"Generaliza ✨",s:"a casos nuevos"}]),
+ f:"Pocos ejemplos bien elegidos enseñan el criterio, no solo el caso."},
+"4.3":{e:"🍪",a:"El molde de galletas: con molde (tool_use + JSON schema) TODAS las galletas salen con la forma correcta — es imposible que salga un triángulo (error de sintaxis eliminado). Pero el molde no garantiza el sabor (errores semánticos): la masa puede llevar sal en vez de azúcar. Y si la receta no trae chocolate, el molde no debe obligarte a inventarlo: se deja el hueco vacío (campo nullable) en vez de rellenarlo con cualquier cosa.",
+ g:()=>svgFlow([{t:"📄 Documento",s:"desordenado"},{t:"🍪 tool_use",s:"+ schema",gate:true},{t:"Sintaxis ✅",s:"Semántica ⚠️"}]),
+ f:"El schema garantiza la forma, nunca el contenido: valida la semántica aparte."},
+"4.4":{e:"✏️",a:"Corregir la tarea: si el niño sumó mal, le marcas el error exacto y lo corrige (retry con el error de validación en la mano). Pero si la respuesta no está en su libro, repetirle «inténtalo otra vez» no sirve de nada — el dato simplemente no está ahí (retry inútil). Truco extra: pedirle que sume él mismo el total y lo compare con el que copió (calculated_total vs stated_total) hace que se atrape sus propios errores.",
+ g:()=>svgVs("✅ Retry sirve",["Error de formato","Estructura mal","Feedback exacto"],"❌ Retry inútil",["El dato NO está","Doc externo falta","Repetir no ayuda"]),
+ f:"Reintenta con el error exacto en la mano; si el dato no existe, no reintentes."},
+"4.5":{e:"📮",a:"Carta vs mensajero: el correo ordinario cuesta la mitad y llega «en algún momento de mañana» (Batch API: -50%, hasta 24h, sin SLA) — perfecto para el reporte mensual. Para el contrato que se firma HOY pagas mensajero urgente (API síncrona). Nunca mandas por correo ordinario algo que tiene a alguien esperando en la puerta (checks pre-merge). Y cada sobre lleva remitente (custom_id): si 3 se devuelven, reenvías solo esos 3.",
+ g:()=>svgVs("🐢 Batch API",["-50% costo","Hasta 24h, sin SLA","Nocturno / semanal"],"🐇 Síncrono",["Respuesta inmediata","Camino crítico","Checks pre-merge"]),
+ f:"Batch: mitad de precio, cero prisa. Jamás en el camino crítico."},
+"4.6":{e:"🪞",a:"Revisar tu propio examen: siempre te parece que está perfecto — tu cerebro recuerda lo que QUISISTE escribir, no lo que escribiste (el generador retiene su razonamiento). Por eso lo revisa un compañero que no sabe qué quisiste decir (instancia independiente). Y un examen de 14 páginas no se corrige de una ojeada: página por página, y al final una pasada para ver si las respuestas se contradicen entre sí (multi-pass).",
+ g:()=>svgVs("🪞 Auto-review",["Recuerda su lógica","No se cuestiona","Sesgo del creador"],"👓 2ª instancia",["Ojos frescos","Sin contexto previo","Atrapa más"]),
+ f:"Ojos frescos ven más: instancia independiente y revisión por pasadas."},
+"5.1":{e:"📌",a:"El post-it en la nevera: la conversación familiar fluye y se olvida (historial resumido), pero el teléfono del pediatra y la fecha de la vacuna están en un post-it siempre visible (case facts: montos, fechas, IDs). En una charla larga, lo importante se dice al principio y al final — lo del medio se pierde (lost in the middle). Y si el vecino te cuenta 40 detalles de su viaje cuando solo preguntaste la fecha, te quedas con la fecha (trimming de tool outputs).",
+ g:()=>svgFlow([{t:"Historial",s:"resumido 🌫️"},{t:"📌 Case facts",s:"montos·fechas·IDs",gate:true},{t:"En cada prompt",s:"sin perderse"}]),
+ f:"Lo que no puede olvidarse no se resume: va en el bloque de case facts."},
+"5.2":{e:"🍼",a:"El niñero: si el niño pide a sus papás, se les llama YA — sin intentar distraerlo primero (cliente pide humano → escalar de inmediato). Si pasa algo que las instrucciones no cubren («¿puede comer esto?»), se pregunta (gap de política → escalar). Pero si solo está enfadado y el problema es resoluble, primero se le atiende: llorar no es motivo automático de llamada (sentimiento ≠ complejidad). Y si hay dos niños con el mismo nombre, se pregunta el apellido — no se adivina (múltiples matches → pedir identificadores).",
+ g:()=>svgStack(["🔴 Pide humano → escalar YA","🟡 La política no cubre el caso → escalar","🟢 Resoluble (aunque enojado) → resolver"]),
+ f:"Pide humano → ya. Política muda → escala. ¿Enojado pero resoluble? → resuelve."},
+"5.3":{e:"🧭",a:"El explorador: vuelve al campamento y nunca dice solo «fracasé». Dice: «no pude cruzar el río (tipo de fallo), lo intenté por el puente norte (qué se intentó), traje estas bayas del camino (resultados parciales) y creo que se puede por el sur (alternativa)». Con eso el líder decide. Los que dicen «todo bien» cuando no cruzaron (vacío como éxito) o hacen que se cancele TODA la expedición por un río, ponen en riesgo la misión.",
+ g:()=>svgFlow([{t:"Subagente",s:"falla ⏱️"},{t:"tipo + intento",s:"+ parciales"},{t:"🧭 Coordinador",s:"decide"}]),
+ f:"Los errores viajan con tipo, intento, parciales y alternativas — nunca «falló» a secas."},
+"5.4":{e:"📓",a:"El diario de expedición: en una travesía larga la memoria falla — el explorador empieza a hablar de «ríos típicos» en vez del río que cruzó el martes (degradación de contexto). Por eso anota los hallazgos en su diario (scratchpad) y consulta el diario, no su memoria. Los mapas de zonas específicas los levantan los ayudantes (subagentes) y le entregan solo el mapa. Antes de cada nueva etapa se resume la anterior, se aligera la mochila (/compact), y si hay que acampar de emergencia, todo queda empacado y etiquetado para retomar (manifests).",
+ g:()=>svgHub("🧠 Agente principal",["📝 Scratchpad de hallazgos","🕵️ Subagentes investigan","🗜️ /compact en sesiones largas","📦 Manifests p/ crash recovery"]),
+ f:"La memoria larga vive en archivos: scratchpads, resúmenes y manifests."},
+"5.5":{e:"🍲",a:"Probar la sopa: una cucharada de UNA olla no te dice si las 20 ollas del banquete están buenas (accuracy agregado engaña). Pruebas cucharadas de ollas distintas, incluidas las que «seguro están bien» (muestreo estratificado de alta confianza), y descubres que justo la olla de los niños está salada (mal desempeño en un segmento). Solo entonces decides qué ollas ya no necesitan catador (reducir review humano) — y el catador escaso se reserva para las ollas dudosas (routing por confianza).",
+ g:()=>svgFlow([{t:"97% global",s:"🤔 ¿seguro?"},{t:"🔬 Segmentar",s:"tipo y campo",gate:true},{t:"Facturas: 82%",s:"😱 detectado"}]),
+ f:"Desconfía del promedio: mide por segmento y muestrea lo «seguro»."},
+"5.6":{e:"🕵️",a:"La abuela y el chisme: siempre pregunta «¿quién te lo dijo y cuándo?». Cada dato viaja con su fuente y su fecha (claim-source mapping) — y al resumir el chisme para contarlo, la fuente NO se pierde. Si dos primas cuentan versiones distintas, se cuentan AMBAS con nombre y apellido (anotar el conflicto), no eliges la que más te gusta. Y a veces no se contradicen: una habla de 2024 y la otra de 2026 (fechas evitan falsas contradicciones).",
+ g:()=>svgFlow([{t:"📊 Dato"},{t:"🔗 + fuente",s:"📅 + fecha"},{t:"Conflicto →",s:"anotar ambos"}]),
+ f:"Cada afirmación con su fuente y su fecha; los conflictos se anotan, no se eligen."}
+};
+
 /* ================= FLASHCARDS (repetición espaciada) ================= */
 const CARDS = [
 {d:1,q:"¿Qué dos valores de stop_reason controlan el agentic loop y qué haces con cada uno?",a:"\"tool_use\" → ejecutar la herramienta, añadir tool_result al historial y reenviar. \"end_turn\" → terminar el loop."},
@@ -429,13 +596,18 @@ function renderStudy(){
         <span class="muted" style="margin-left:auto">${done}/${temas.length}</span>
       </button>
       <div class="body">` +
-      temas.map(t=>`<div class="tema" id="tema-${t.id.replace(".","_")}">
+      temas.map(t=>{const ex=EXTRA[t.id]||{};return `<div class="tema" id="tema-${t.id.replace(".","_")}">
         <button onclick="this.parentElement.classList.toggle('open')">
           <span class="check ${S.studied[t.id]?'done':''}" onclick="event.stopPropagation();toggleStudied('${t.id}')">${S.studied[t.id]?"✓":""}</span>
-          <span><b>${t.id}</b> — ${t.t}</span>
+          <span>${ex.e||""} <b>${t.id}</b> — ${t.t}</span>
         </button>
-        <div class="content">${t.x}</div>
-      </div>`).join("") +
+        <div class="content">
+          ${ex.a?`<div class="analogy"><div class="emo">${ex.e}</div><div><b>Imagínalo así:</b> ${ex.a}</div></div>`:""}
+          ${ex.g?`<div class="diagram">${ex.g()}</div>`:""}
+          ${t.x}
+          ${ex.f?`<div class="frase">💡 ${ex.f}</div>`:""}
+        </div>
+      </div>`}).join("") +
       `</div></div>`;
   }
   $("#v-study").innerHTML = html;
