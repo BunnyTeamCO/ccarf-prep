@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCAR-F Prep — Claude Certified Architect Foundations</title>
+<style>
+:root{
+  --bg:#0f1117;--panel:#171a23;--panel2:#1e2230;--border:#2a2f3f;
+  --text:#e8eaf0;--muted:#9aa1b5;--accent:#d97748;--accent2:#e8956b;
+  --green:#4caf7d;--red:#e05d5d;--yellow:#e0b34c;--blue:#5b8dd9;
+  --radius:12px;
+}
+[data-theme="light"]{
+  --bg:#f4f2ee;--panel:#ffffff;--panel2:#faf8f5;--border:#e0dcd4;
+  --text:#1a1d26;--muted:#6b7180;--accent:#c8562e;--accent2:#d97748;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.55;min-height:100vh}
+header{position:sticky;top:0;z-index:50;background:var(--panel);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{font-size:1.05rem;font-weight:700}
+header h1 span{color:var(--accent)}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav button{background:transparent;border:1px solid transparent;color:var(--muted);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600}
+nav button:hover{color:var(--text);background:var(--panel2)}
+nav button.active{color:var(--accent);background:var(--panel2);border-color:var(--border)}
+#themeBtn{background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer}
+main{max-width:960px;margin:0 auto;padding:20px 16px 80px}
+.view{display:none}.view.active{display:block}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.grid{display:grid;gap:12px}
+.grid2{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+h2{font-size:1.25rem;margin-bottom:12px}
+h3{font-size:1.02rem;margin-bottom:8px}
+.muted{color:var(--muted);font-size:.88rem}
+.big{font-size:1.9rem;font-weight:800}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.75rem;font-weight:700;background:var(--panel2);border:1px solid var(--border);color:var(--muted)}
+.pill.d1{color:#e8956b}.pill.d2{color:#5b8dd9}.pill.d3{color:#4caf7d}.pill.d4{color:#e0b34c}.pill.d5{color:#c98bdb}
+.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar>div{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+button.btn{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:9px;font-weight:700;font-size:.92rem;cursor:pointer}
+button.btn:hover{background:var(--accent2)}
+button.btn.sec{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+button.btn.sm{padding:6px 12px;font-size:.82rem}
+button:disabled{opacity:.45;cursor:not-allowed}
+.domacc{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.domacc>button{width:100%;text-align:left;background:var(--panel);color:var(--text);border:none;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.98rem;font-weight:700}
+.domacc .body{display:none;background:var(--panel2);padding:6px 12px 12px}
+.domacc.open .body{display:block}
+.tema{border:1px solid var(--border);border-radius:10px;margin-top:8px;background:var(--panel);overflow:hidden}
+.tema>button{width:100%;text-align:left;background:none;border:none;color:var(--text);padding:11px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.9rem;font-weight:600}
+.tema .content{display:none;padding:0 16px 14px;font-size:.9rem}
+.tema.open .content{display:block}
+.tema .content h4{margin:12px 0 4px;font-size:.84rem;text-transform:uppercase;letter-spacing:.05em;color:var(--accent)}
+.tema .content ul{margin:4px 0 4px 20px}
+.tema .content li{margin-bottom:3px}
+.check{width:18px;height:18px;border-radius:5px;border:2px solid var(--muted);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.check.done{background:var(--green);border-color:var(--green)}
+.qopt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.9rem;line-height:1.45}
+.qopt:hover{border-color:var(--accent)}
+.qopt.sel{border-color:var(--blue);background:rgba(91,141,217,.12)}
+.qopt.ok{border-color:var(--green);background:rgba(76,175,125,.14)}
+.qopt.bad{border-color:var(--red);background:rgba(224,93,93,.14)}
+.qopt:disabled{cursor:default;opacity:1}
+.expl{border-left:3px solid var(--accent);background:var(--panel2);padding:10px 14px;border-radius:0 10px 10px 0;font-size:.88rem;margin-top:10px}
+.flash{min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;cursor:pointer}
+.flash .q{font-size:1.08rem;font-weight:700;max-width:600px}
+.flash .a{font-size:.95rem;color:var(--accent2);margin-top:14px;max-width:620px}
+.rowbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.navgrid{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.navgrid button{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:700}
+.navgrid button.answered{background:var(--blue);color:#fff;border-color:var(--blue)}
+.navgrid button.current{outline:2px solid var(--accent)}
+.timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:1.15rem}
+.timer.low{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+td,th{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
+.score-ring{font-size:2.6rem;font-weight:800}
+.pass{color:var(--green)}.fail{color:var(--red)}
+.tag{font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:99px;margin-left:6px}
+.tag.multi{background:rgba(224,179,76,.18);color:var(--yellow)}
+@media(max-width:640px){header h1{font-size:.9rem}nav button{padding:6px 8px;font-size:.8rem}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CCAR-F <span>Prep</span> <span class="muted" style="font-weight:400;font-size:.75rem">Claude Certified Architect – Foundations</span></h1>
+  <nav>
+    <button data-v="dash" class="active">Inicio</button>
+    <button data-v="study">Estudio</button>
+    <button data-v="flash">Flashcards</button>
+    <button data-v="practice">Práctica</button>
+    <button data-v="exam">Simulacro</button>
+  </nav>
+  <button id="themeBtn" title="Tema claro/oscuro">◐</button>
+</header>
+<main>
+  <section id="v-dash" class="view active"></section>
+  <section id="v-study" class="view"></section>
+  <section id="v-flash" class="view"></section>
+  <section id="v-practice" class="view"></section>
+  <section id="v-exam" class="view"></section>
+</main>
+<script>
+"use strict";
+/* ================= DATOS DEL EXAMEN ================= */
+const DOMAINS = {
+  1:{name:"Agentic Architecture & Orchestration", w:27},
+  2:{name:"Tool Design & MCP Integration", w:18},
+  3:{name:"Claude Code Configuration & Workflows", w:20},
+  4:{name:"Prompt Engineering & Structured Output", w:20},
+  5:{name:"Context Management & Reliability", w:15}
+};
+
+/* ================= GUÍA DE ESTUDIO (30 temas) ================= */
+const TEMAS = [
+{id:"1.1",d:1,t:"El agentic loop y stop_reason",x:`
+<h4>Explicación</h4><p>Un agente es un bucle: envías request → Claude responde → inspeccionas <b>stop_reason</b> → si es <b>"tool_use"</b>, ejecutas la herramienta, añades el resultado al historial y vuelves a llamar; si es <b>"end_turn"</b>, terminas. El modelo decide qué herramienta llamar según contexto (decisión dirigida por el modelo), no un árbol preconfigurado.</p>
+<h4>Ejemplo</h4><p>«¿Dónde está mi pedido #123?» → stop_reason: tool_use pidiendo lookup_order(123) → ejecutas, agregas tool_result, reenvías → Claude responde texto con end_turn → fin.</p>
+<h4>Señales de examen</h4><ul><li>Anti-patrones (siempre incorrectos): parsear lenguaje natural para terminar el loop, tope de iteraciones como parada principal, detectar texto del assistant como señal de completitud.</li><li>El tope de iteraciones es solo red de seguridad.</li></ul>`},
+{id:"1.2",d:1,t:"Orquestación coordinador-subagente",x:`
+<h4>Explicación</h4><p>Arquitectura <b>hub-and-spoke</b>: el coordinador descompone, delega, agrega resultados y enruta TODA la comunicación entre subagentes (observabilidad + errores consistentes). Los subagentes tienen <b>contexto aislado</b>: no heredan el historial. El coordinador selecciona dinámicamente qué subagentes invocar — no siempre el pipeline completo.</p>
+<h4>Ejemplo</h4><p>Investigación: coordinador → búsqueda web + análisis de documentos (paralelo) → síntesis → reporte.</p>
+<h4>Señales de examen</h4><ul><li>Riesgo clave: <b>descomposición demasiado estrecha</b>. Si «IA en industrias creativas» se descompone solo en arte visual, el reporte omite música, escritura y cine. Los subagentes trabajaron bien: el problema es lo que se les asignó.</li></ul>`},
+{id:"1.3",d:1,t:"Invocación de subagentes y paso de contexto",x:`
+<h4>Explicación</h4><p>Los subagentes se lanzan con la herramienta <b>Task</b>; el <b>allowedTools</b> del coordinador DEBE incluir "Task". El contexto se pasa <b>explícitamente en el prompt</b> — no hay herencia automática ni memoria compartida. Paralelismo: <b>múltiples Task calls en UNA sola respuesta</b> (no turnos separados). Prompts del coordinador: objetivos y criterios de calidad, no procedimientos rígidos.</p>
+<h4>Ejemplo</h4><p>La síntesis necesita los hallazgos previos → se incluyen completos en su prompt, en formato estructurado que separa contenido de metadata (URLs, documentos, páginas) para preservar atribución.</p>
+<h4>Señales de examen</h4><ul><li>«El coordinador no puede lanzar subagentes» → falta "Task" en allowedTools.</li><li>fork_session = ramas independientes desde base compartida.</li></ul>`},
+{id:"1.4",d:1,t:"Enforcement programático y handoffs",x:`
+<h4>Explicación</h4><p>Regla madre: cumplimiento <b>determinístico</b> (identidad antes de operaciones financieras) → <b>enforcement programático</b> (hooks, gates); las instrucciones de prompt tienen tasa de fallo no nula. Un handoff de escalación debe ser <b>estructurado</b>: ID de cliente, causa raíz, monto, acción recomendada — el humano no ve la transcripción.</p>
+<h4>Ejemplo</h4><p>Bloquear process_refund hasta que get_customer devuelva ID verificado (prerequisito programático, NO mejorar el system prompt).</p>
+<h4>Señales de examen</h4><ul><li>«garantizar / nunca / obligatorio / consecuencias financieras» → hook.</li><li>«consistencia / calibrar / reducir errores» → few-shot + criterios.</li></ul>`},
+{id:"1.5",d:1,t:"Hooks del Agent SDK",x:`
+<h4>Explicación</h4><p>Dos patrones: (a) <b>PostToolUse</b> intercepta <i>resultados</i> para transformarlos antes de que el modelo los procese; (b) intercepción de <i>llamadas salientes</i> para bloquear acciones que violan políticas y redirigir a workflows alternativos.</p>
+<h4>Ejemplos</h4><ul><li>PostToolUse normaliza formatos heterogéneos (timestamps Unix, ISO 8601, códigos numéricos) → formato uniforme.</li><li>Hook que bloquea refunds > $500 y redirige a escalación humana.</li></ul>
+<h4>Señales de examen</h4><ul><li>«Datos inconsistentes de varios MCP servers, unificar de forma confiable» → PostToolUse, no «pedirle cuidado» al prompt.</li></ul>`},
+{id:"1.6",d:1,t:"Estrategias de descomposición",x:`
+<h4>Explicación</h4><p><b>Prompt chaining</b> (pipeline fijo secuencial): workflows predecibles multi-aspecto. Ej.: review → analizar cada archivo individualmente + pasada de integración cross-file (evita dilución de atención). <b>Descomposición dinámica/adaptativa</b>: investigación abierta donde los subtasks emergen de lo descubierto.</p>
+<h4>Ejemplo</h4><p>«Añade tests a un codebase legacy» → mapear estructura, identificar áreas de alto impacto, plan priorizado que se adapta según dependencias descubiertas.</p>
+<h4>Señales de examen</h4><ul><li>Tarea predecible y multi-aspecto → chaining; abierta y exploratoria → dinámica.</li></ul>`},
+{id:"1.7",d:1,t:"Sesiones: --resume, fork_session, empezar de cero",x:`
+<h4>Explicación</h4><p><b>--resume &lt;nombre&gt;</b>: continuar sesión previa nombrada. <b>fork_session</b>: ramas independientes desde base común (comparar dos estrategias desde el mismo análisis). Si los archivos cambiaron: <b>informar al agente qué cambió</b> para re-análisis dirigido. Si los tool results están <b>obsoletos</b>: mejor sesión nueva con resumen estructurado inyectado.</p>
+<h4>Señales de examen</h4><ul><li>«Retomas un análisis pero el código cambió mucho» → nueva sesión + resumen, NO --resume a ciegas.</li></ul>`},
+{id:"2.1",d:2,t:"Tool descriptions efectivas",x:`
+<h4>Explicación</h4><p>La descripción es el <b>mecanismo principal</b> de selección de herramientas del LLM. Descripciones mínimas → selección no confiable. Una buena descripción incluye: formatos de entrada, queries de ejemplo, casos borde y <b>límites</b> («usa esto y no aquello cuando…»). Revisa también el system prompt por instrucciones sensibles a keywords que anulen buenas descripciones.</p>
+<h4>Ejemplo</h4><p>get_customer vs lookup_order con descripciones casi idénticas → primer paso: <b>expandir descripciones</b>. NO few-shot (parche), NO routing layer (sobre-ingeniería), NO consolidar (demasiado esfuerzo para un «primer paso»).</p>
+<h4>Señales de examen</h4><ul><li>Remedios: renombrar (analyze_content → extract_web_results), dividir tools genéricas en específicas con contratos claros.</li></ul>`},
+{id:"2.2",d:2,t:"Errores estructurados MCP",x:`
+<h4>Explicación</h4><p>Flag <b>isError</b> + metadata: <b>errorCategory</b> (transient / validation / business / permission), <b>isRetryable</b>, descripción legible. «Operation failed» genérico impide recuperación. Distinción crítica: <b>fallo de acceso</b> (timeout → decidir retry) ≠ <b>vacío válido</b> (query exitosa sin matches). Subagentes recuperan localmente lo transitorio; propagan solo lo irresoluble <b>con parciales y qué se intentó</b>.</p>
+<h4>Ejemplo</h4><p>Refund fuera de ventana → {isError:true, errorCategory:"business", isRetryable:false, message:"excede ventana de 30 días"} → el agente explica, no reintenta.</p>`},
+{id:"2.3",d:2,t:"Distribución de tools y tool_choice",x:`
+<h4>Explicación</h4><p>Demasiadas herramientas (18 vs 4-5) degradan la selección → <b>acceso scoped por rol</b>. Excepción: tool cross-rol acotada para necesidades de alta frecuencia. <b>tool_choice</b>: "auto" (puede responder texto), "any" (debe llamar alguna tool), forzada {"type":"tool","name":"…"} (debe llamar ESA).</p>
+<h4>Ejemplo</h4><p>Síntesis verifica hechos constantemente (85% simples) → darle verify_fact acotada; el 15% complejo vía coordinador. NO darle todas las tools de búsqueda.</p>
+<h4>Señales de examen</h4><ul><li>«Garantizar output estructurado con varias schemas y tipo desconocido» → "any". «Asegurar que X corra primero» → forzada.</li></ul>`},
+{id:"2.4",d:2,t:"Configuración de MCP servers",x:`
+<h4>Explicación</h4><p><b>.mcp.json</b> (proyecto): compartido por git con el equipo. <b>~/.claude.json</b> (usuario): personal/experimental. Variables de entorno: <b>\${GITHUB_TOKEN}</b> — credenciales sin commitear secretos. Tools de TODOS los servers disponibles simultáneamente. <b>MCP resources</b>: catálogos de contenido (schemas BD, jerarquías de docs) para evitar tool calls exploratorios. Preferir servers comunitarios (Jira) sobre custom.</p>
+<h4>Señales de examen</h4><ul><li>«El agente prefiere Grep sobre tu MCP tool más capaz» → mejorar la descripción de la MCP tool.</li></ul>`},
+{id:"2.5",d:2,t:"Herramientas built-in",x:`
+<h4>Explicación</h4><p><b>Grep</b> = buscar contenido (funciones, errores, imports). <b>Glob</b> = rutas/nombres por patrón (**/*.test.tsx). <b>Read/Write</b> = archivo completo; <b>Edit</b> = modificación puntual con texto ancla único. Edit falla por texto no único → fallback <b>Read + Write</b>. Exploración incremental: Grep para entry points → Read siguiendo imports → NO leer todo por adelantado.</p>
+<h4>Señales de examen</h4><ul><li>«Encontrar archivos de test» → Glob. «Quién llama a esta función» → Grep.</li></ul>`},
+{id:"3.1",d:3,t:"Jerarquía CLAUDE.md",x:`
+<h4>Explicación</h4><p>Tres niveles: <b>usuario</b> (~/.claude/CLAUDE.md — solo tú, NO se comparte por git), <b>proyecto</b> (raíz o .claude/ — compartido), <b>directorio</b> (subdirectorios). Modularidad: <b>@import</b> para estándares externos; <b>.claude/rules/</b> divide un CLAUDE.md monolítico por temas. Diagnóstico: <b>/memory</b> muestra qué archivos están cargados.</p>
+<h4>Señales de examen</h4><ul><li>Trampa clásica: «un nuevo miembro no recibe las instrucciones» → estaban a nivel usuario del autor; deben ir a nivel proyecto.</li></ul>`},
+{id:"3.2",d:3,t:"Slash commands y skills",x:`
+<h4>Explicación</h4><p>Commands de proyecto: <b>.claude/commands/</b> (git). Personales: ~/.claude/commands/. Skills: <b>.claude/skills/</b> con SKILL.md y frontmatter: <b>context: fork</b> (contexto aislado — outputs verbosos no contaminan la conversación), <b>allowed-tools</b> (restringe herramientas), <b>argument-hint</b> (pide parámetros). Skills = invocación bajo demanda; CLAUDE.md = estándares siempre cargados. Variante personal de skill de equipo → ~/.claude/skills/ con OTRO nombre.</p>
+<h4>Señales de examen</h4><ul><li>«/review para todo el equipo al clonar» → .claude/commands/. Distractor: config.json con array de commands (no existe).</li></ul>`},
+{id:"3.3",d:3,t:"Reglas por ruta (glob patterns)",x:`
+<h4>Explicación</h4><p>Archivos en <b>.claude/rules/</b> con frontmatter YAML <b>paths: ["glob/**/*"]</b> → la regla carga SOLO al editar archivos que matchean. Ventaja sobre CLAUDE.md por directorio: aplican por <b>tipo de archivo sin importar ubicación</b> (**/*.test.tsx para tests dispersos). Reduce contexto irrelevante.</p>
+<h4>Señales de examen</h4><ul><li>Convenciones para archivos dispersos por el codebase → rules con glob, NO CLAUDE.md por subdirectorio, NO confiar en que Claude «infiera».</li></ul>`},
+{id:"3.4",d:3,t:"Plan mode vs ejecución directa",x:`
+<h4>Explicación</h4><p><b>Plan mode</b>: cambios de gran escala, múltiples enfoques válidos, decisiones arquitectónicas, multi-archivo (migraciones 45+ archivos, monolito→microservicios). Explora y diseña antes de comprometerse → evita rework. <b>Ejecución directa</b>: cambios simples y delimitados (bug de un archivo con stack trace). <b>Explore subagent</b>: aísla descubrimiento verboso, devuelve resúmenes. Combinación válida: plan para investigar + directa para implementar.</p>
+<h4>Señales de examen</h4><ul><li>Distractor: «empieza directo y cambia a plan si se complica» — la complejidad ya está declarada.</li></ul>`},
+{id:"3.5",d:3,t:"Refinamiento iterativo",x:`
+<h4>Explicación</h4><p><b>Ejemplos input/output concretos (2-3)</b>: lo más efectivo cuando la prosa se interpreta inconsistente. <b>Test-driven iteration</b>: tests primero, iterar compartiendo fallos. <b>Interview pattern</b>: Claude pregunta para descubrir consideraciones no anticipadas (invalidación de caché, modos de fallo) en dominios desconocidos. Issues que <b>interactúan</b> → un solo mensaje detallado; <b>independientes</b> → secuencial.</p>
+<h4>Señales de examen</h4><ul><li>«Migración falla con nulls» → test cases concretos con input y output esperado.</li></ul>`},
+{id:"3.6",d:3,t:"Claude Code en CI/CD",x:`
+<h4>Explicación</h4><p><b>-p / --print</b>: modo no interactivo (sin esto el job de CI cuelga; CLAUDE_HEADLESS y --batch NO existen). <b>--output-format json + --json-schema</b>: output parseable para comentarios inline en PRs. CLAUDE.md da contexto al CI (estándares, fixtures, criterios). <b>Aislamiento de sesión</b>: la sesión que generó el código es peor revisándolo → instancia independiente. Re-runs: incluir hallazgos previos, pedir solo issues nuevos. Test generation: incluir tests existentes para no duplicar.</p>`},
+{id:"4.1",d:4,t:"Criterios explícitos vs instrucciones vagas",x:`
+<h4>Explicación</h4><p>«Sé conservador» o «solo alta confianza» NO mejoran precisión. Funciona: criterios <b>categóricos y específicos</b> — «flaggea comentarios solo cuando el comportamiento descrito contradice el código real». Los falsos positivos destruyen la confianza incluso en categorías precisas → táctica válida: <b>desactivar temporalmente</b> categorías con alto FP mientras se mejoran.</p>
+<h4>Ejemplo</h4><p>Severidad inconsistente → criterios explícitos de severidad <b>con ejemplos de código por nivel</b>.</p>
+<h4>Señales de examen</h4><ul><li>Distractor recurrente: filtrar por «confianza auto-reportada».</li></ul>`},
+{id:"4.2",d:4,t:"Few-shot prompting",x:`
+<h4>Explicación</h4><p>La técnica más efectiva para <b>consistencia de formato</b> y <b>casos ambiguos</b> cuando las instrucciones no bastan. <b>2-4 ejemplos dirigidos</b> que muestren el razonamiento de por qué una acción sobre alternativas plausibles. Generaliza a patrones nuevos. Reduce alucinación en extracción con formatos variados.</p>
+<h4>Ejemplo</h4><p>Escalación mal calibrada → criterios explícitos + few-shot de «cuándo escalar vs resolver».</p>
+<h4>Señales de examen</h4><ul><li>Cuándo NO: si el problema es descripción pobre de tools (arregla la descripción) o requiere garantía determinística (hook).</li></ul>`},
+{id:"4.3",d:4,t:"Structured output con tool_use + JSON schema",x:`
+<h4>Explicación</h4><p><b>Tool use + JSON schema = lo más confiable</b>: elimina errores de sintaxis, NO los semánticos (items que no suman el total). Schema: campos <b>opcionales/nullable</b> cuando el dato puede faltar → evita que el modelo <b>fabrique valores</b>; enums con <b>"other" + detalle</b> y <b>"unclear"</b> para ambiguos; reglas de normalización en el prompt.</p>
+<h4>Señales de examen</h4><ul><li>«El modelo inventa fechas» → campo nullable, NO «no inventes» en el prompt.</li><li>tool_choice "any" con múltiples schemas y tipo desconocido; forzada para garantizar una específica.</li></ul>`},
+{id:"4.4",d:4,t:"Validación, retry y feedback loops",x:`
+<h4>Explicación</h4><p><b>Retry-with-error-feedback</b>: reenviar documento + extracción fallida + errores específicos de validación. Límite: el retry es <b>inútil si la información no está en el documento</b> (vs errores de formato, que sí se corrigen). Auto-validación semántica: calculated_total junto a stated_total, boolean conflict_detected. Campo detected_pattern para analizar falsos positivos.</p>
+<h4>Señales de examen</h4><ul><li>«¿Cuándo NO sirve reintentar?» → dato en documento externo no proporcionado.</li></ul>`},
+{id:"4.5",d:4,t:"Batch processing (Message Batches API)",x:`
+<h4>Explicación</h4><p><b>50% descuento, ventana hasta 24h, sin SLA de latencia, sin tool calling multi-turno</b>. <b>custom_id</b> correlaciona request/response y permite reenviar SOLO fallidos (ej. chunking de documentos grandes). Apto: reportes nocturnos, auditorías semanales. NO apto: checks bloqueantes pre-merge. Refinar el prompt en una muestra ANTES del batch masivo.</p>
+<h4>Señales de examen</h4><ul><li>Dos workflows, uno bloqueante y uno nocturno → batch solo el nocturno.</li></ul>`},
+{id:"4.6",d:4,t:"Multi-instancia y multi-pass review",x:`
+<h4>Explicación</h4><p><b>El auto-review falla</b>: el modelo retiene su contexto de razonamiento y no cuestiona sus decisiones → <b>segunda instancia independiente</b>. <b>Multi-pass</b> para PRs grandes: pasada local por archivo + pasada de integración cross-file → evita dilución de atención y hallazgos contradictorios.</p>
+<h4>Señales de examen</h4><ul><li>Distractor: «modelo con más contexto» — no arregla la calidad de atención.</li></ul>`},
+{id:"5.1",d:5,t:"Contexto en interacciones largas",x:`
+<h4>Explicación</h4><p>El resumen progresivo pierde números, fechas y expectativas → bloque persistente de <b>«case facts»</b> en cada prompt, fuera del historial resumido. <b>Lost in the middle</b>: el modelo procesa bien inicio y final, omite el medio → resumen clave al INICIO + headers de sección. <b>Recortar tool outputs</b> a campos relevantes (40 campos cuando importan 5). Upstream devuelve <b>datos estructurados</b>, no prosa, cuando el downstream tiene poco contexto.</p>
+<h4>Señales de examen</h4><ul><li>«A los 30 turnos olvida el monto» → case facts, NO «resumir más seguido».</li></ul>`},
+{id:"5.2",d:5,t:"Escalación y ambigüedad",x:`
+<h4>Explicación</h4><p>Triggers correctos: (a) el cliente <b>pide un humano</b> → honrar de inmediato; (b) <b>gaps de política</b> (el caso no está cubierto); (c) incapacidad de progresar. NO confiables: sentimiento, confianza auto-reportada. Frustración + caso resoluble → reconocer y ofrecer resolver; escalar si insiste. Múltiples matches de cliente → <b>pedir identificadores adicionales</b>, nunca heurística.</p>`},
+{id:"5.3",d:5,t:"Propagación de errores multi-agente",x:`
+<h4>Explicación</h4><p>El error propagado incluye: <b>tipo de fallo, qué se intentó, parciales, alternativas</b> → el coordinador decide (retry modificado, alternativa, continuar con parciales). Anti-patrones: status genérico, suprimir error (vacío como éxito), matar todo el workflow. La síntesis anota <b>coverage gaps</b>: qué está bien soportado y qué áreas quedaron sin fuentes.</p>`},
+{id:"5.4",d:5,t:"Contexto en codebases grandes",x:`
+<h4>Explicación</h4><p>Señal de degradación: responde con «patrones típicos» en vez de clases específicas descubiertas. Remedios: <b>scratchpad files</b> (persistir hallazgos), <b>delegar a subagentes</b> lo verboso, <b>resumir antes de cada fase</b> e inyectar, <b>/compact</b> en sesiones largas, <b>crash recovery con manifests</b> (cada agente exporta estado; el coordinador lo carga al reanudar).</p>`},
+{id:"5.5",d:5,t:"Human review y calibración de confianza",x:`
+<h4>Explicación</h4><p>Un accuracy agregado (97%) puede <b>ocultar mal desempeño por tipo de documento o campo</b> → validar por segmento antes de automatizar. <b>Muestreo aleatorio estratificado</b> de extracciones de alta confianza: mide error real, detecta patrones nuevos. <b>Confidence scores por campo</b>, calibrados con sets etiquetados → enrutar a humano lo de baja confianza o fuentes contradictorias.</p>`},
+{id:"5.6",d:5,t:"Procedencia y manejo de incertidumbre",x:`
+<h4>Explicación</h4><p>La atribución se pierde al resumir → <b>mapeos claim-source</b> (URL, documento, excerpt, fecha) que la síntesis PRESERVA. Estadísticas en conflicto de fuentes creíbles → <b>anotar con atribución</b>, nunca elegir arbitrariamente. <b>Fechas de publicación obligatorias</b> → diferencias temporales no son contradicciones. Reportes: hallazgos <b>establecidos vs disputados</b>. Renderizar por tipo: finanzas en tablas, noticias en prosa.</p>`}
+];
+/* ================= FLASHCARDS (repetición espaciada) ================= */
+const CARDS = [
+{d:1,q:"¿Qué dos valores de stop_reason controlan el agentic loop y qué haces con cada uno?",a:"\"tool_use\" → ejecutar la herramienta, añadir tool_result al historial y reenviar. \"end_turn\" → terminar el loop."},
+{d:1,q:"Tres anti-patrones de terminación del agentic loop",a:"1) Parsear lenguaje natural para decidir si terminó. 2) Tope de iteraciones como parada principal (solo es red de seguridad). 3) Detectar texto del assistant como señal de completitud."},
+{d:1,q:"¿Qué heredan los subagentes del coordinador?",a:"NADA automáticamente. Contexto aislado: todo lo que necesiten debe pasarse explícitamente en su prompt."},
+{d:1,q:"¿Qué requisito tiene el coordinador para poder lanzar subagentes?",a:"Su allowedTools debe incluir \"Task\" (la herramienta Task es el mecanismo de spawning)."},
+{d:1,q:"¿Cómo se lanzan subagentes EN PARALELO?",a:"Emitiendo múltiples Task tool calls en UNA sola respuesta del coordinador (no en turnos separados)."},
+{d:1,q:"Regla madre: ¿cuándo hook y cuándo prompt?",a:"\"Garantizar / nunca / obligatorio / consecuencias financieras\" → hook/programático (determinístico). \"Consistencia / calibrar / reducir errores\" → few-shot + criterios explícitos (probabilístico)."},
+{d:1,q:"¿Para qué sirve un hook PostToolUse?",a:"Intercepta RESULTADOS de herramientas para transformarlos antes de que el modelo los procese (ej.: normalizar timestamps Unix/ISO 8601/códigos a un formato uniforme)."},
+{d:1,q:"Prompt chaining vs descomposición dinámica",a:"Chaining (pipeline fijo): workflows predecibles multi-aspecto (review por archivo + pasada de integración). Dinámica: tareas abiertas donde los subtasks emergen de lo descubierto."},
+{d:1,q:"El código cambió mucho desde tu última sesión de análisis. ¿--resume o sesión nueva?",a:"Sesión nueva con resumen estructurado inyectado. --resume solo si el contexto previo sigue siendo mayormente válido (y avisando qué archivos cambiaron)."},
+{d:1,q:"¿Qué es fork_session?",a:"Crear ramas independientes desde una base de análisis compartida, para explorar enfoques divergentes (ej.: comparar dos estrategias de testing)."},
+{d:1,q:"¿Qué contiene un handoff estructurado de escalación?",a:"ID de cliente, causa raíz, monto, acción recomendada — porque el humano no tiene acceso a la transcripción."},
+{d:1,q:"Reporte incompleto pero todos los subagentes completaron bien su tarea. ¿Causa raíz típica?",a:"Descomposición demasiado estrecha del coordinador: las asignaciones no cubrieron todos los dominios del tema."},
+{d:1,q:"¿Cómo deben ser los prompts del coordinador a sus subagentes?",a:"Objetivos de investigación y criterios de calidad — no procedimientos paso a paso rígidos (permite adaptabilidad)."},
+{d:2,q:"¿Cuál es el mecanismo #1 que usa el LLM para elegir herramientas?",a:"La descripción de la herramienta. Ante misrouting, el primer paso es expandir descripciones (formatos de entrada, ejemplos, casos borde, límites vs tools similares)."},
+{d:2,q:"Cuatro categorías de error en respuestas MCP estructuradas",a:"transient (timeout, servicio caído), validation (input inválido), business (violación de política), permission. Más isRetryable boolean y mensaje legible."},
+{d:2,q:"Fallo de acceso vs resultado vacío válido",a:"Timeout/error de acceso → requiere decisión de retry. Query exitosa sin matches → éxito con 0 resultados. Nunca confundirlos ni reportarlos igual."},
+{d:2,q:"¿Qué pasa si le das 18 herramientas a un agente?",a:"Degrada la fiabilidad de selección. Solución: acceso scoped por rol (4-5 tools relevantes), con tools cross-rol acotadas solo para necesidades de alta frecuencia."},
+{d:2,q:"tool_choice: auto vs any vs forzada",a:"auto: puede responder texto sin llamar tools. any: DEBE llamar alguna tool (elige cuál). Forzada {type:\"tool\",name:...}: DEBE llamar esa tool específica."},
+{d:2,q:".mcp.json vs ~/.claude.json",a:".mcp.json = scope proyecto, compartido por git con el equipo (con ${VAR} para credenciales). ~/.claude.json = scope usuario, personal/experimental. Ambos disponibles simultáneamente."},
+{d:2,q:"¿Para qué sirven los MCP resources?",a:"Exponer catálogos de contenido (schemas de BD, jerarquías de docs, resúmenes de issues) para que el agente vea qué hay disponible SIN tool calls exploratorios."},
+{d:2,q:"Grep vs Glob",a:"Grep = buscar CONTENIDO dentro de archivos (funciones, errores, imports). Glob = buscar ARCHIVOS por patrón de nombre/ruta (**/*.test.tsx)."},
+{d:2,q:"Edit falla porque el texto ancla no es único. ¿Fallback?",a:"Read (cargar archivo completo) + Write (reescribirlo). "},
+{d:2,q:"El agente usa Grep en vez de tu MCP tool más capaz. ¿Fix?",a:"Mejorar la descripción de la MCP tool: explicar capacidades y outputs en detalle para que el agente la prefiera."},
+{d:3,q:"Jerarquía de CLAUDE.md (3 niveles)",a:"Usuario (~/.claude/CLAUDE.md — personal, NO va por git), Proyecto (raíz o .claude/ — compartido con el equipo), Directorio (subdirectorios)."},
+{d:3,q:"Un compañero nuevo no recibe las instrucciones del equipo. ¿Diagnóstico típico?",a:"Estaban en el CLAUDE.md de NIVEL USUARIO del autor. Deben moverse a nivel proyecto para compartirse por git. Verificar con /memory."},
+{d:3,q:"¿Dónde va un slash command compartido con el equipo? ¿Y uno personal?",a:"Equipo: .claude/commands/ (versionado en git). Personal: ~/.claude/commands/."},
+{d:3,q:"Tres opciones de frontmatter de SKILL.md y su función",a:"context: fork (corre en contexto aislado, no contamina la conversación), allowed-tools (restringe herramientas), argument-hint (pide parámetros si se invoca sin argumentos)."},
+{d:3,q:"¿Skills o CLAUDE.md?",a:"Skills: workflows específicos, invocación bajo demanda. CLAUDE.md: estándares universales, siempre cargados."},
+{d:3,q:"Convenciones para tests dispersos por todo el codebase, ¿mecanismo?",a:".claude/rules/ con frontmatter YAML paths: [\"**/*.test.tsx\"] — carga solo al editar archivos que matchean, sin importar el directorio."},
+{d:3,q:"¿Cuándo plan mode y cuándo ejecución directa?",a:"Plan mode: gran escala, múltiples enfoques válidos, decisiones arquitectónicas, multi-archivo. Directa: cambios simples y bien delimitados (bug de un archivo con stack trace claro)."},
+{d:3,q:"¿Qué hace el Explore subagent?",a:"Aísla el output verboso de descubrimiento y devuelve resúmenes → preserva el contexto de la conversación principal."},
+{d:3,q:"Técnica más efectiva cuando la prosa produce transformaciones inconsistentes",a:"2-3 ejemplos input/output concretos."},
+{d:3,q:"¿Qué es el interview pattern?",a:"Hacer que Claude te pregunte antes de implementar, para descubrir consideraciones no anticipadas (invalidación de caché, modos de fallo) en dominios desconocidos."},
+{d:3,q:"¿Varios issues: un mensaje o secuencial?",a:"Si los fixes INTERACTÚAN entre sí → un solo mensaje detallado. Si son independientes → secuencial."},
+{d:3,q:"El job de CI con Claude Code cuelga esperando input. ¿Fix?",a:"Flag -p (--print): modo no interactivo. CLAUDE_HEADLESS y --batch NO existen (distractores)."},
+{d:3,q:"Output estructurado parseable en CI, ¿flags?",a:"--output-format json + --json-schema."},
+{d:4,q:"¿Por qué falla \"sé conservador\" y qué funciona?",a:"Las instrucciones vagas no mejoran precisión. Funcionan criterios categóricos específicos: qué reportar (bugs, seguridad) y qué omitir (estilo menor), con ejemplos concretos por nivel de severidad."},
+{d:4,q:"Una categoría de review genera muchos falsos positivos y los devs pierden confianza. ¿Táctica?",a:"Desactivarla temporalmente mientras se mejora el prompt de esa categoría — los FP contaminan la confianza en las categorías precisas."},
+{d:4,q:"¿Cuántos ejemplos few-shot y qué deben mostrar?",a:"2-4 dirigidos a casos ambiguos, mostrando el RAZONAMIENTO de por qué una acción sobre alternativas plausibles. Permiten generalizar a patrones nuevos."},
+{d:4,q:"¿Qué garantiza tool_use + JSON schema y qué NO?",a:"Elimina errores de SINTAXIS JSON. NO previene errores SEMÁNTICOS (items que no suman el total, valores en campos equivocados)."},
+{d:4,q:"El modelo fabrica valores para campos que el documento no tiene. ¿Fix de schema?",a:"Hacer los campos opcionales/nullable. También: enum con \"unclear\" para ambiguos y \"other\" + campo detalle para categorías extensibles."},
+{d:4,q:"¿Cuándo es inútil el retry-with-error-feedback?",a:"Cuando la información NO está en el documento fuente. Sí funciona para errores de formato/estructura."},
+{d:4,q:"Message Batches API: 4 datos clave",a:"50% de descuento, ventana de hasta 24h, SIN SLA de latencia, SIN tool calling multi-turno. custom_id correlaciona request/response y permite reenviar solo fallidos."},
+{d:4,q:"¿Batch API para checks pre-merge?",a:"NUNCA — es bloqueante y batch no tiene SLA de latencia. Batch solo para workloads tolerantes: reportes nocturnos, auditorías semanales."},
+{d:4,q:"¿Por qué el auto-review falla y cuál es la alternativa?",a:"El modelo retiene el contexto de razonamiento de la generación y no cuestiona sus decisiones. Alternativa: segunda instancia INDEPENDIENTE sin ese contexto."},
+{d:4,q:"Review de 14 archivos: feedback inconsistente y contradictorio. ¿Fix?",a:"Multi-pass: análisis local por archivo + pasada separada de integración cross-file. Más contexto NO arregla la dilución de atención."},
+{d:5,q:"El agente olvida montos y fechas en conversaciones largas. ¿Patrón?",a:"Bloque persistente de \"case facts\" (montos, fechas, IDs, estados) incluido en cada prompt, FUERA del historial resumido."},
+{d:5,q:"¿Qué es lost in the middle y cómo se mitiga?",a:"El modelo procesa bien inicio y final de inputs largos pero omite el medio. Mitigación: resumen de hallazgos clave al INICIO + headers de sección explícitos."},
+{d:5,q:"Tool outputs de 40 campos cuando importan 5. ¿Qué hacer?",a:"Recortarlos a los campos relevantes ANTES de que se acumulen en el contexto."},
+{d:5,q:"Tres triggers CORRECTOS de escalación",a:"1) Cliente pide humano explícitamente (honrar YA, sin investigar antes). 2) Gap/excepción de política. 3) Incapacidad de progresar. NO confiables: sentimiento, confianza auto-reportada."},
+{d:5,q:"lookup devuelve múltiples clientes que coinciden. ¿Qué hace el agente?",a:"Pedir identificadores adicionales para desambiguar. NUNCA elegir por heurística."},
+{d:5,q:"¿Qué incluye una buena propagación de error de subagente?",a:"Tipo de fallo, qué se intentó, resultados parciales y alternativas posibles → el coordinador decide. Anti-patrones: status genérico, vacío como éxito, matar el workflow."},
+{d:5,q:"Herramientas contra la degradación de contexto en exploración larga",a:"Scratchpad files (persistir hallazgos), delegar lo verboso a subagentes, resumir antes de cada fase, /compact, manifests para crash recovery."},
+{d:5,q:"97% de accuracy global. ¿Reducimos el review humano?",a:"No todavía: el agregado puede ocultar mal desempeño por tipo de documento o campo. Segmentar accuracy + muestreo estratificado de alta confianza + confianza por campo calibrada con sets etiquetados."},
+{d:5,q:"Dos fuentes creíbles con estadísticas distintas. ¿Qué hace la síntesis?",a:"Anotar el conflicto con atribución de fuente (y fechas de publicación — puede ser diferencia temporal). NUNCA elegir arbitrariamente."},
+{d:5,q:"¿Cómo se preserva la atribución de fuentes en síntesis multi-agente?",a:"Los subagentes emiten mapeos claim-source estructurados (URL, documento, excerpt, fecha) que la síntesis debe preservar y fusionar."}
+];
+/* ================= BANCO DE PREGUNTAS (60) ================= */
+/* d: dominio, q: pregunta, o: opciones, a: índices correctos, m: multi-respuesta, e: explicación */
+const QUESTIONS = [
+/* ---------- DOMINIO 1 (16) ---------- */
+{d:1,q:"En producción, tu agente de soporte salta get_customer en el 12% de los casos y llama lookup_order solo con el nombre declarado por el cliente, causando refunds a cuentas equivocadas. ¿Qué cambio resuelve el problema con mayor efectividad?",o:["Añadir un prerequisito programático que bloquee lookup_order y process_refund hasta que get_customer devuelva un ID de cliente verificado","Reforzar el system prompt indicando que la verificación con get_customer es obligatoria antes de cualquier operación","Añadir few-shot examples mostrando al agente llamando siempre get_customer primero","Implementar un clasificador de routing que habilite solo las tools apropiadas para cada tipo de request"],a:[0],m:false,e:"Cuando una secuencia de tools es crítica (identidad antes de dinero), el enforcement programático da garantía determinística. Prompt y few-shot son probabilísticos — insuficientes con consecuencias financieras. El routing aborda disponibilidad, no orden."},
+{d:1,q:"Estás implementando el loop de un agente con el Agent SDK. ¿Cómo decide tu código si continúa o termina?",o:["Inspecciona stop_reason: continúa si es \"tool_use\", termina si es \"end_turn\"","Cuenta iteraciones y termina al llegar a un máximo configurado","Busca frases como \"he terminado\" en el texto de la respuesta","Termina cuando la respuesta contiene texto además de tool calls"],a:[0],m:false,e:"El control de flujo correcto se basa en stop_reason. Iteración máxima es solo red de seguridad; parsear lenguaje natural o presencia de texto son anti-patrones explícitos del examen."},
+{d:1,q:"Claude responde con stop_reason \"tool_use\" pidiendo lookup_order. ¿Cuál es la secuencia correcta?",o:["Ejecutar la tool, añadir el resultado como tool_result al historial de conversación y reenviar el request","Ejecutar la tool y mostrar el resultado directamente al usuario","Ejecutar la tool y empezar una conversación nueva con el resultado como system prompt","Pedir a Claude confirmación de que realmente necesita esa tool antes de ejecutarla"],a:[0],m:false,e:"El loop agéntico requiere devolver el tool_result al historial para que el modelo incorpore la información y decida el siguiente paso."},
+{d:1,q:"Tu agente a veces entra en bucles largos. Un compañero propone «limitar a 5 iteraciones y devolver lo que haya». ¿Cuál es la evaluación correcta?",o:["Válido como red de seguridad contra loops infinitos, pero nunca como mecanismo principal de parada — este debe ser stop_reason","Correcto: los límites de iteración son el mecanismo estándar de terminación","Incorrecto: los agentes nunca deben tener límites de iteración","Mejor alternativa: analizar el sentimiento de la respuesta para detectar si el agente está atascado"],a:[0],m:false,e:"El límite de iteraciones protege contra fallos, pero la lógica principal de parada es la condición real (stop_reason / criterios de calidad cumplidos). Sentimiento es un distractor clásico."},
+{d:1,q:"Tu coordinador no logra lanzar subagentes: los Task calls fallan. ¿Causa más probable?",o:["El allowedTools del coordinador no incluye \"Task\"","Los subagentes no tienen system prompt definido","El coordinador debe lanzar subagentes en turnos separados","Falta configurar memoria compartida entre coordinador y subagentes"],a:[0],m:false,e:"La herramienta Task es el mecanismo de spawning y debe estar en allowedTools del coordinador. La memoria compartida no existe (los subagentes tienen contexto aislado)."},
+{d:1,q:"El subagente de síntesis produce reportes que ignoran los hallazgos de los subagentes de búsqueda y análisis. ¿Causa más probable?",o:["Los hallazgos no se están incluyendo explícitamente en el prompt del subagente de síntesis — no hay herencia automática de contexto","El subagente de síntesis necesita acceso a las tools de búsqueda web","Los subagentes comparten memoria pero la síntesis corre antes de que se escriba","El coordinador debe usar fork_session para que la síntesis vea el contexto"],a:[0],m:false,e:"Los subagentes operan con contexto aislado: todo lo que necesitan debe pasarse explícitamente en su prompt, idealmente en formato estructurado con metadata de atribución."},
+{d:1,q:"Quieres que los subagentes de búsqueda web y análisis de documentos corran EN PARALELO. ¿Cómo se implementa?",o:["El coordinador emite ambos Task tool calls en una sola respuesta","El coordinador emite un Task call por turno, alternando entre ambos","Se configuran los subagentes con parallel: true en su AgentDefinition","Se crean dos sesiones separadas con fork_session y se ejecutan a la vez"],a:[0],m:false,e:"El paralelismo de subagentes se logra emitiendo múltiples Task calls en una única respuesta del coordinador. fork_session es para explorar enfoques divergentes, no para paralelizar subtareas."},
+{d:1,q:"Tu sistema investigó «impacto de la IA en industrias creativas». Cada subagente completó su tarea correctamente, pero el reporte solo cubre artes visuales y omite música, escritura y cine. Los logs muestran que el coordinador creó subtareas de arte digital, diseño gráfico y fotografía. ¿Causa raíz?",o:["La descomposición del coordinador fue demasiado estrecha: las asignaciones no cubren todos los dominios del tema","El agente de síntesis no tiene instrucciones para detectar gaps de cobertura","Las queries del agente de búsqueda no son suficientemente amplias","El agente de análisis filtra fuentes no visuales por criterios de relevancia restrictivos"],a:[0],m:false,e:"Los logs revelan la causa directamente: la descomposición omitió dominios completos. Los subagentes ejecutaron bien lo asignado — culpar a los downstream es el distractor."},
+{d:1,q:"¿Por qué se enruta toda la comunicación entre subagentes a través del coordinador (hub-and-spoke)? (Elige 2)",o:["Observabilidad del flujo de información","Manejo de errores consistente y controlado","Menor latencia total del sistema","Los subagentes no pueden emitir tool calls por sí mismos"],a:[0,1],m:true,e:"Hub-and-spoke da observabilidad, manejo de errores consistente y flujo de información controlado. No reduce latencia (puede aumentarla) y los subagentes sí usan sus propias tools."},
+{d:1,q:"Política: ningún refund mayor a $500 puede procesarse sin humano — cumplimiento obligatorio por auditoría. ¿Implementación correcta?",o:["Hook que intercepta las llamadas a process_refund, bloquea montos > $500 y redirige a escalación humana","Instrucción destacada en el system prompt: «nunca proceses refunds mayores a $500»","Few-shot examples mostrando refunds grandes siendo escalados","Post-procesamiento que revierte los refunds grandes ya procesados"],a:[0],m:false,e:"«Cumplimiento obligatorio» → enforcement programático. El prompt es probabilístico; revertir después ya incumplió la política."},
+{d:1,q:"Tres MCP tools devuelven fechas en formatos distintos (Unix, ISO 8601, texto) y el agente comete errores al compararlas. ¿Solución más confiable?",o:["Hook PostToolUse que normaliza los resultados a un formato único antes de que el modelo los procese","Instruir en el system prompt que tenga cuidado con los formatos de fecha","Few-shot examples de conversión correcta de fechas","Pedir a los proveedores de los MCP servers que cambien sus formatos"],a:[0],m:false,e:"PostToolUse intercepta resultados y los transforma determinísticamente — exactamente su caso de uso. Las opciones de prompt son probabilísticas."},
+{d:1,q:"Debes automatizar el review de PRs que tocan muchos aspectos conocidos (estilo, seguridad, tests, docs). ¿Patrón de descomposición?",o:["Prompt chaining: pasos secuenciales fijos — análisis por archivo y luego una pasada de integración cross-file","Descomposición dinámica: que el agente decida qué revisar según lo que encuentre","Un solo prompt gigante cubriendo todos los aspectos a la vez","Ejecutar 5 reviews independientes completos y quedarse con la intersección"],a:[0],m:false,e:"Workflow predecible multi-aspecto → prompt chaining con pasos enfocados. La descomposición dinámica es para investigación abierta."},
+{d:1,q:"«Añadir tests comprehensivos a un codebase legacy desconocido». ¿Enfoque de descomposición?",o:["Adaptativo: mapear la estructura, identificar áreas de alto impacto y crear un plan priorizado que se ajusta según lo descubierto","Pipeline fijo: generar tests archivo por archivo en orden alfabético","Generar todos los tests en una sola pasada con el codebase completo en contexto","Pedir al agente que estime cuántos tests se necesitan y dividir el trabajo en partes iguales"],a:[0],m:false,e:"Tarea abierta y exploratoria → descomposición dinámica que se adapta a dependencias descubiertas. El pipeline fijo es para workflows predecibles."},
+{d:1,q:"El agente escala un caso a un humano que NO tiene acceso a la transcripción. ¿Qué debe incluir el handoff?",o:["Resumen estructurado: ID del cliente, causa raíz, monto del refund y acción recomendada","Un enlace a la sesión para que el humano relea la conversación completa","Solo el último mensaje del cliente para no sesgar al humano","El historial completo de tool calls en formato JSON crudo"],a:[0],m:false,e:"El handoff estructurado transfiere lo esencial para actuar. El humano no tiene acceso a la transcripción, y el JSON crudo no es accionable."},
+{d:1,q:"Analizaste un codebase la semana pasada en una sesión nombrada. Hoy el código cambió sustancialmente. ¿Cómo continúas?",o:["Sesión nueva inyectando un resumen estructurado del análisis previo — los tool results viejos están obsoletos","--resume de la sesión anterior sin más: el contexto previo acelera el trabajo","--resume y confiar en que el agente detectará los cambios automáticamente","Repetir el análisis completo desde cero sin aprovechar nada del anterior"],a:[0],m:false,e:"Con tool results obsoletos, resumir la sesión vieja arrastra información falsa. Sesión nueva + resumen estructurado es lo confiable. (Si los cambios fueran menores: --resume informando qué archivos cambiaron.)"},
+{d:1,q:"Quieres comparar dos estrategias de refactoring partiendo del mismo análisis del codebase, sin que se contaminen entre sí. ¿Mecanismo?",o:["fork_session: dos ramas independientes desde la base de análisis compartida","--resume de la misma sesión dos veces seguidas","Dos agentes en paralelo repitiendo el análisis completo cada uno","Un solo agente evaluando ambas estrategias en la misma conversación"],a:[0],m:false,e:"fork_session existe exactamente para explorar enfoques divergentes desde una base común. Evaluar ambas en la misma conversación contamina; repetir el análisis duplica costo."},
+/* ---------- DOMINIO 2 (11) ---------- */
+{d:2,q:"El agente confunde get_customer con lookup_order. Ambas tienen descripciones mínimas («Retrieves customer information» / «Retrieves order details») y aceptan identificadores similares. ¿Primer paso más efectivo?",o:["Expandir las descripciones: formatos de entrada, queries de ejemplo, casos borde y límites que expliquen cuándo usar cada una","Añadir 5-8 few-shot examples de selección correcta al system prompt","Implementar un routing layer que pre-seleccione la tool según keywords","Consolidar ambas en una sola tool lookup_entity"],a:[0],m:false,e:"Las descripciones son el mecanismo principal de selección — mejorar la descripción ataca la causa raíz con bajo esfuerzo. Few-shot añade overhead sin arreglar la raíz; routing es sobre-ingeniería; consolidar excede un «primer paso»."},
+{d:2,q:"Tienes analyze_content y analyze_document con descripciones casi idénticas y el agente las confunde. ¿Remedio recomendado?",o:["Renombrarlas según su propósito real (p. ej. extract_web_results) y reescribir descripciones que las diferencien con límites claros","Eliminar una de las dos aunque tengan backends distintos","Añadir un número de prioridad para que el agente prefiera una","Interceptar cada llamada y redirigirla a la tool correcta con código"],a:[0],m:false,e:"El overlap funcional se elimina con nombres y descripciones diferenciadas (qué hace, con qué inputs, cuándo usarla vs la otra)."},
+{d:2,q:"Tu MCP tool devuelve «Operation failed» para todos los errores. ¿Qué debería devolver en su lugar?",o:["Metadata estructurada: errorCategory (transient/validation/business/permission), isRetryable y descripción legible","Un código HTTP y nada más, para ahorrar tokens","El stack trace completo del servidor para máxima transparencia","Un resultado vacío marcado como éxito para no interrumpir el flujo"],a:[0],m:false,e:"Los errores estructurados permiten al agente decidir: reintentar transitorios, explicar errores de negocio, no desperdiciar retries. Vacío-como-éxito suprime el error (anti-patrón)."},
+{d:2,q:"Un cliente pide un refund que viola la política de 30 días. ¿Respuesta ideal de la tool process_refund?",o:["{isError: true, errorCategory: \"business\", isRetryable: false, message: \"Excede la ventana de 30 días\"} — para que el agente explique al cliente sin reintentar","{isError: true, message: \"Error\"} — el agente decidirá qué hacer","Lanzar una excepción no controlada para abortar el workflow","Procesar el refund y registrar la violación para auditoría posterior"],a:[0],m:false,e:"Error de negocio: no reintentable, con explicación amigable para que el agente comunique. Genérico impide decisiones; procesar viola la política."},
+{d:2,q:"Una búsqueda no devuelve resultados. ¿Cómo debe distinguirse de un fallo del servicio?",o:["Vacío válido = éxito con 0 matches; timeout/fallo de acceso = error que requiere decisión de retry — deben reportarse de forma distinta","Ambos como error, para que el agente siempre reintente","Ambos como éxito, para no interrumpir el flujo","Devolver null en ambos casos y que el agente pregunte al usuario"],a:[0],m:false,e:"Confundirlos causa retries inútiles (sobre vacíos válidos) o pérdida de datos (fallos tratados como vacíos)."},
+{d:2,q:"Tu agente tiene acceso a 18 herramientas y su selección se volvió errática. ¿Solución principal?",o:["Acceso scoped: restringir cada agente a las 4-5 tools de su rol, con tools cross-rol acotadas solo para necesidades de alta frecuencia","Ordenar las 18 tools alfabéticamente en la definición","Duplicar las descripciones de todas las tools","Usar tool_choice: \"any\" para forzar que siempre use alguna"],a:[0],m:false,e:"Muchas tools = mayor complejidad de decisión = selección degradada. El principio es scoped access por especialización."},
+{d:2,q:"El agente de síntesis necesita verificar hechos constantemente. El 85% son fact-checks simples; el 15% requiere investigación profunda. Cada verificación hoy cuesta 2-3 round-trips vía coordinador (+40% latencia). ¿Solución?",o:["Darle una tool acotada verify_fact para el 85% simple; el 15% complejo sigue vía coordinador","Darle acceso a todas las tools de búsqueda web para que verifique todo directamente","Acumular todas las verificaciones y enviarlas en batch al final de la síntesis","Cachear proactivamente contexto extra durante la investigación inicial anticipando verificaciones"],a:[0],m:false,e:"Mínimo privilegio: tool acotada para el caso frecuente, coordinación para el complejo. Todas las tools viola separación de concerns; batch crea dependencias bloqueantes; el caché especulativo no puede predecir."},
+{d:2,q:"Extraes datos de documentos de tipo desconocido con múltiples schemas de extracción disponibles. Debes garantizar que el modelo llame alguna tool y no responda texto libre. ¿Configuración?",o:["tool_choice: \"any\"","tool_choice: \"auto\"","tool_choice forzada a la primera tool de la lista","max_tokens bajo para desincentivar respuestas de texto"],a:[0],m:false,e:"\"any\" obliga a llamar alguna tool dejando que el modelo elija el schema correcto. \"auto\" permite texto; forzar una específica es incorrecto si el tipo es desconocido."},
+{d:2,q:"Tu equipo comparte un MCP server de GitHub que requiere token. ¿Configuración correcta?",o:[".mcp.json (scope proyecto, versionado en git) con expansión de variable ${GITHUB_TOKEN}","~/.claude.json de cada desarrollador, con el token hardcodeado","El token en texto plano dentro de .mcp.json commiteado","Un CLAUDE.md con instrucciones de cómo instalar el server manualmente"],a:[0],m:false,e:".mcp.json comparte la configuración vía git; ${VAR} evita commitear secretos — cada dev define su token en su entorno."},
+{d:2,q:"Los agentes hacen decenas de tool calls exploratorios para descubrir qué documentos existen en tu sistema. ¿Mecanismo MCP que lo evita?",o:["Exponer un catálogo de contenido como MCP resources","Crear una tool list_everything que devuelva todo el contenido","Aumentar el límite de tool calls por turno","Precargar todos los documentos en el system prompt"],a:[0],m:false,e:"Los MCP resources exponen catálogos (jerarquías de docs, schemas, resúmenes) dándole visibilidad al agente sin tool calls exploratorios ni contexto desperdiciado."},
+{d:2,q:"Necesitas: (1) encontrar todos los archivos **/*.test.tsx, (2) encontrar todos los llamadores de la función processOrder, (3) modificar una línea puntual en un archivo. ¿Herramientas correctas en orden?",o:["Glob, Grep, Edit","Grep, Glob, Write","Glob, Read, Write","Grep, Grep, Edit"],a:[0],m:false,e:"Glob = patrones de nombre/ruta; Grep = contenido (llamadores de una función); Edit = modificación puntual con ancla única (fallback Read+Write si el ancla no es única)."},
+/* ---------- DOMINIO 3 (12) ---------- */
+{d:3,q:"Quieres un slash command /review con el checklist del equipo, disponible para todos al clonar el repo. ¿Dónde va?",o:["En .claude/commands/ dentro del repositorio","En ~/.claude/commands/ de cada desarrollador","En el CLAUDE.md de la raíz del proyecto","En .claude/config.json con un array de commands"],a:[0],m:false,e:".claude/commands/ se versiona en git y queda disponible al clonar. ~/.claude/commands/ es personal; CLAUDE.md es para instrucciones, no commands; config.json con array de commands NO existe."},
+{d:3,q:"Un desarrollador nuevo clona el repo pero Claude Code no aplica los estándares del equipo, que sí funcionan en la máquina del tech lead. ¿Diagnóstico más probable?",o:["Los estándares están en el CLAUDE.md de nivel usuario (~/.claude/) del tech lead — deben moverse a nivel proyecto","El desarrollador nuevo necesita ejecutar /compact para cargar la memoria","Los CLAUDE.md solo se cargan en sesiones con --resume","Falta un archivo .claude/config.json que active la memoria compartida"],a:[0],m:false,e:"El nivel usuario no viaja por git. Los estándares de equipo van a nivel proyecto. Verificable con /memory."},
+{d:3,q:"Tu CLAUDE.md creció a 800 líneas mezclando testing, convenciones de API y deployment; el equipo reporta comportamiento inconsistente. ¿Reorganización recomendada?",o:["Dividirlo en archivos por tema en .claude/rules/ (testing.md, api-conventions.md, deployment.md)","Convertirlo todo en un solo skill invocable","Duplicarlo en cada subdirectorio del proyecto","Moverlo a ~/.claude/CLAUDE.md de cada desarrollador"],a:[0],m:false,e:".claude/rules/ permite organización modular por tema en lugar de un monolito. @import es otra vía de modularidad."},
+{d:3,q:"Los archivos de test (Button.test.tsx) están dispersos junto al código en todo el codebase y deben seguir las mismas convenciones sin importar el directorio. ¿Mecanismo más mantenible?",o:["Archivos en .claude/rules/ con frontmatter YAML paths: [\"**/*.test.tsx\"]","Todas las convenciones en el CLAUDE.md raíz bajo headers, confiando en que Claude infiera cuál aplica","Skills en .claude/skills/ para cada tipo de código","Un CLAUDE.md en cada subdirectorio con las convenciones de esa área"],a:[0],m:false,e:"Los glob patterns aplican por tipo de archivo sin importar ubicación — clave para archivos dispersos. Inferencia es poco confiable; skills requieren invocación; CLAUDE.md es directorio-bound."},
+{d:3,q:"Debes reestructurar un monolito en microservicios: docenas de archivos, decisiones de fronteras de servicio y dependencias. ¿Enfoque?",o:["Plan mode: explorar el codebase, entender dependencias y diseñar antes de cambiar nada","Ejecución directa incremental: la implementación revelará las fronteras naturales","Ejecución directa con instrucciones upfront exhaustivas de cómo estructurar cada servicio","Empezar en directa y cambiar a plan mode solo si surge complejidad inesperada"],a:[0],m:false,e:"Gran escala + múltiples enfoques + decisiones arquitectónicas = plan mode, siempre. La complejidad ya está declarada — no es algo que «podría emerger»."},
+{d:3,q:"Bug de un solo archivo con stack trace claro que apunta a la línea exacta. ¿Enfoque?",o:["Ejecución directa: cambio simple y bien delimitado","Plan mode: siempre es más seguro planear primero","Lanzar un subagente Explore para investigar todo el módulo","Pedir un análisis completo de la arquitectura antes de tocar nada"],a:[0],m:false,e:"Plan mode en tareas triviales añade fricción sin valor. Directa para cambios claros y delimitados."},
+{d:3,q:"Durante una tarea multi-fase, la exploración del codebase llena el contexto principal con output verboso. ¿Mecanismo de Claude Code diseñado para esto?",o:["El Explore subagent: aísla el descubrimiento verboso y devuelve resúmenes","Aumentar max_tokens de la sesión","Guardar la conversación y abrir una nueva cada 10 minutos","Desactivar las tools de lectura durante la exploración"],a:[0],m:false,e:"El Explore subagent existe para aislar la fase de descubrimiento y preservar el contexto de la conversación principal."},
+{d:3,q:"Le describes en prosa una transformación de datos y Claude la implementa diferente cada vez. ¿Técnica más efectiva?",o:["Dar 2-3 ejemplos concretos de input/output","Reescribir la descripción con más detalle y longitud","Repetir la instrucción al principio y al final del prompt","Subir la temperatura para que explore más opciones"],a:[0],m:false,e:"Los ejemplos input/output concretos son la forma más efectiva de comunicar transformaciones cuando la prosa se interpreta de forma inconsistente."},
+{d:3,q:"Vas a implementar caching en un dominio que no conoces bien. ¿Qué patrón de refinamiento iterativo ayuda a descubrir consideraciones no anticipadas ANTES de implementar?",o:["El interview pattern: pedir a Claude que te haga preguntas (invalidación, modos de fallo) antes de implementar","Test-driven: escribir tests después de la implementación","Pedir tres implementaciones alternativas y elegir la mejor","Implementar rápido y refinar según los bugs que aparezcan"],a:[0],m:false,e:"El interview pattern hace emerger consideraciones que no habías anticipado (estrategia de invalidación, fallos) antes de escribir código."},
+{d:3,q:"El código generado tiene 4 problemas: dos interactúan entre sí (el fix de uno afecta al otro) y dos son independientes. ¿Estrategia de feedback?",o:["Los que interactúan: juntos en un solo mensaje detallado; los independientes pueden ir secuencialmente","Los cuatro de uno en uno, siempre","Los cuatro juntos siempre, para ahorrar mensajes","Reescribir el prompt original desde cero"],a:[0],m:false,e:"Issues que interactúan se resuelven juntos (el modelo necesita verlos a la vez); los independientes pueden iterarse secuencialmente."},
+{d:3,q:"Tu pipeline ejecuta claude \"Analiza este PR\" y el job cuelga indefinidamente esperando input interactivo. ¿Fix correcto?",o:["Añadir el flag -p: claude -p \"Analiza este PR\"","Definir la variable de entorno CLAUDE_HEADLESS=true","Redirigir stdin desde /dev/null","Añadir el flag --batch"],a:[0],m:false,e:"-p (--print) es el modo no interactivo documentado: procesa, imprime a stdout y sale. CLAUDE_HEADLESS y --batch no existen (distractores de features inventadas)."},
+{d:3,q:"Tu CI debe publicar los hallazgos del review como comentarios inline estructurados en el PR. ¿Flags correctos?",o:["--output-format json junto con --json-schema","--verbose para capturar todo el output","--print-json (modo estructurado)","Parsear el texto libre del output con expresiones regulares"],a:[0],m:false,e:"--output-format json + --json-schema producen output estructurado parseable conforme a tu schema. --print-json no existe; regex sobre texto libre es frágil."},
+/* ---------- DOMINIO 4 (12) ---------- */
+{d:4,q:"Tu reviewer automático genera demasiados falsos positivos. Un compañero propone añadir «sé conservador y reporta solo hallazgos de alta confianza». ¿Evaluación correcta?",o:["Insuficiente: las instrucciones vagas no mejoran precisión — se necesitan criterios categóricos específicos de qué reportar y qué omitir","Correcto: es la forma estándar de reducir falsos positivos","Mejor aún: pedir un score de confianza y filtrar por debajo de 7","Mejor aún: analizar el sentimiento del código para detectar problemas reales"],a:[0],m:false,e:"«Sé conservador» y la confianza auto-reportada no funcionan (distractores clásicos). Funcionan criterios explícitos: reportar bugs y seguridad, omitir estilo menor, con ejemplos por categoría."},
+{d:4,q:"La categoría «seguridad» de tu reviewer es precisa, pero la de «rendimiento» genera 80% de falsos positivos y los devs están ignorando TODO el review. ¿Acción correcta?",o:["Desactivar temporalmente la categoría de rendimiento mientras mejoras sus criterios, para restaurar la confianza","Mantener todo activo: más hallazgos siempre es mejor","Bajar el umbral de confianza global del reviewer","Pedir a los devs que ignoren solo la categoría mala"],a:[0],m:false,e:"Los falsos positivos de una categoría contaminan la confianza en las categorías precisas. Desactivar temporalmente + mejorar es la táctica del examen."},
+{d:4,q:"Las clasificaciones de severidad de tu reviewer son inconsistentes: el mismo tipo de bug a veces es «critical» y a veces «minor». ¿Fix más efectivo?",o:["Definir criterios explícitos de severidad con ejemplos de código concretos para cada nivel","Añadir «clasifica la severidad cuidadosamente» al prompt","Promediar la severidad de tres ejecuciones independientes","Eliminar el campo de severidad del output"],a:[0],m:false,e:"Consistencia de clasificación = criterios explícitos + ejemplos concretos por nivel. Las instrucciones vagas no calibran."},
+{d:4,q:"Tu agente resuelve solo el 55% en primer contacto (meta: 80%): escala casos simples e intenta resolver casos complejos que requieren excepciones de política. ¿Mejora más efectiva?",o:["Criterios explícitos de escalación en el system prompt con few-shot examples de cuándo escalar vs resolver","Score de confianza auto-reportado (1-10) con umbral de escalación automática","Un clasificador ML entrenado con tickets históricos que pre-decida la escalación","Análisis de sentimiento que escale cuando la frustración supere un umbral"],a:[0],m:false,e:"El problema es de límites de decisión difusos → criterios + few-shot. Confianza auto-reportada está mal calibrada; el clasificador es sobre-ingeniería antes de optimizar el prompt; el sentimiento no correlaciona con complejidad."},
+{d:4,q:"Con instrucciones detalladas, el output del reviewer sigue teniendo formato inconsistente. ¿Técnica más efectiva para lograr formato consistente y accionable?",o:["Few-shot examples que demuestren el formato exacto deseado (ubicación, issue, severidad, fix sugerido)","Repetir las instrucciones de formato tres veces en el prompt","Bajar la temperatura a 0","Pedir el output en mayúsculas para las secciones"],a:[0],m:false,e:"Cuando las instrucciones detalladas no bastan, los few-shot examples que demuestran el formato son la técnica más efectiva de consistencia."},
+{d:4,q:"Tu extracción de facturas devuelve JSON con errores de sintaxis intermitentes que rompen el parser. ¿Solución más confiable?",o:["Definir una tool de extracción con JSON schema y extraer del tool_use — elimina los errores de sintaxis","Pedir «responde SOLO con JSON válido» en el prompt","Reintentar hasta que el JSON parsee","Post-procesar el texto con una librería de reparación de JSON"],a:[0],m:false,e:"Tool use con schema es la forma más confiable de output estructurado: garantiza sintaxis válida (aunque no semántica)."},
+{d:4,q:"Usas tool_use con schema estricto y aún así hay facturas donde los line items no suman el stated_total. ¿Por qué y qué haces?",o:["El schema elimina errores de sintaxis, no semánticos — añadir validación (p. ej. extraer calculated_total y flaggear discrepancias)","Es un bug del schema: endurecer los tipos lo resuelve","Subir max_tokens para que el modelo tenga espacio de calcular","Cambiar a un modelo más grande"],a:[0],m:false,e:"Errores semánticos (sumas, campos equivocados) sobreviven al schema. Se atacan con validación semántica y self-check (calculated vs stated, conflict_detected)."},
+{d:4,q:"El modelo rellena el campo «fecha_de_firma» con fechas inventadas cuando el documento no la contiene. ¿Fix de diseño de schema?",o:["Hacer el campo nullable/opcional para que el modelo pueda devolver null en lugar de fabricar","Añadir «no inventes fechas» al prompt","Hacer el campo required con formato estricto de fecha","Eliminar el campo del schema"],a:[0],m:false,e:"Los campos required presionan al modelo a fabricar valores. Nullable permite representar la ausencia — el fix estructural, no el prompt."},
+{d:4,q:"Tu validación Pydantic falla en una extracción. ¿Diseño correcto del retry?",o:["Reenviar el documento original + la extracción fallida + los errores específicos de validación para que el modelo se corrija","Reenviar el mismo prompt tal cual, esperando un resultado distinto","Cambiar de schema en cada retry hasta que uno pase","Reintentar solo si el error es que la información no existe en el documento"],a:[0],m:false,e:"Retry-with-error-feedback: el modelo necesita saber QUÉ falló. Nota: si la información no está en el documento, el retry es inútil — es el caso donde NO reintentar."},
+{d:4,q:"Dos workflows usan la API en tiempo real: (1) check bloqueante pre-merge y (2) reporte de deuda técnica generado de noche. Tu manager propone pasar ambos a la Batch API por el 50% de ahorro. ¿Evaluación?",o:["Batch solo para el reporte nocturno; el pre-merge sigue síncrono","Ambos a batch con polling de estado","Ambos síncronos para evitar problemas de orden en los resultados","Ambos a batch con fallback a tiempo real si tardan mucho"],a:[0],m:false,e:"Batch = hasta 24h sin SLA → inaceptable para workflows bloqueantes, ideal para nocturnos. El «orden» no es problema (custom_id); el fallback añade complejidad innecesaria."},
+{d:4,q:"De un batch de 500 documentos, 30 fallaron por exceder el contexto. ¿Manejo correcto?",o:["Identificar los fallidos por custom_id y reenviar SOLO esos, con chunking de los documentos grandes","Reenviar el batch completo de 500 con documentos truncados","Procesar los 30 manualmente en la UI","Ignorarlos si son menos del 10%"],a:[0],m:false,e:"custom_id correlaciona request/response y permite reenvíos selectivos con la modificación adecuada (chunking)."},
+{d:4,q:"Quieres que el código generado por Claude sea revisado con máxima efectividad. ¿Qué arquitectura de review es superior y por qué?",o:["Una segunda instancia independiente sin el contexto de generación — el modelo que generó retiene su razonamiento y no cuestiona sus propias decisiones","La misma sesión que generó, con la instrucción «revisa críticamente tu código»","La misma sesión con extended thinking activado","Tres auto-reviews consecutivos en la misma sesión"],a:[0],m:false,e:"Limitación del self-review: el contexto de razonamiento de la generación sesga la revisión. Instancia independiente > instrucciones de auto-crítica o extended thinking."},
+/* ---------- DOMINIO 5 (9) ---------- */
+{d:5,q:"En conversaciones largas de soporte con resumen progresivo, el agente empieza a citar montos y fechas equivocados. ¿Fix estructural?",o:["Extraer los hechos transaccionales (montos, fechas, IDs, estados) a un bloque persistente de «case facts» incluido en cada prompt, fuera del historial resumido","Resumir con más frecuencia para que los resúmenes sean más cortos","Prohibir el resumen y mantener siempre el historial completo","Pedir al cliente que repita los datos importantes periódicamente"],a:[0],m:false,e:"El resumen progresivo diluye valores concretos. El bloque de case facts los preserva textualmente fuera del historial condensado."},
+{d:5,q:"El agente de síntesis recibe un input muy largo con hallazgos de 6 subagentes y sistemáticamente omite los de las secciones centrales. ¿Fenómeno y mitigación?",o:["Lost in the middle — poner un resumen de hallazgos clave al inicio y organizar con headers de sección explícitos","Overflow de contexto — comprimir todo con resumen agresivo","Sesgo de recencia — poner todo lo importante al final","Alucinación — bajar la temperatura"],a:[0],m:false,e:"Los modelos procesan mejor inicio y final de inputs largos. Mitigación: hallazgos clave al inicio + estructura con headers."},
+{d:5,q:"Cada lookup_order devuelve 40+ campos pero solo 5 son relevantes para returns, y el contexto se agota en sesiones multi-orden. ¿Fix?",o:["Recortar los tool outputs a los campos relevantes antes de que se acumulen en el contexto","Aumentar la ventana de contexto del modelo","Resumir la conversación después de cada lookup","Prohibir más de 3 lookups por sesión"],a:[0],m:false,e:"Los tool results verbosos consumen tokens desproporcionados a su relevancia. Trimming a campos relevantes es el patrón correcto (p. ej. vía PostToolUse)."},
+{d:5,q:"Un cliente frustrado escribe «quiero hablar con un humano YA». El caso parece simple de resolver. ¿Qué hace el agente?",o:["Escalar de inmediato — la petición explícita de humano se honra sin intentar investigar primero","Resolver el caso primero y ofrecer el humano después","Analizar el sentimiento y escalar solo si supera un umbral","Pedir al cliente que justifique por qué necesita un humano"],a:[0],m:false,e:"Petición explícita de humano = trigger de escalación inmediata. (Distinto de frustración sin petición explícita: ahí se reconoce la frustración y se ofrece resolver.)"},
+{d:5,q:"La política de tu empresa cubre ajustes de precio de su propio sitio, pero un cliente pide igualar el precio de un competidor — caso que la política no menciona. ¿Acción del agente?",o:["Escalar a humano: es un gap de política, no un caso que el agente deba resolver por analogía","Aplicar la política de ajustes propios por analogía","Rechazar la petición porque la política no la autoriza explícitamente","Ofrecer un descuento intermedio como compromiso"],a:[0],m:false,e:"Política ambigua o silente sobre el caso = trigger de escalación. Resolver por analogía o rechazar de plano son decisiones de política que no le corresponden al agente."},
+{d:5,q:"get_customer devuelve tres clientes que coinciden con el nombre dado. ¿Qué hace el agente?",o:["Pedir identificadores adicionales (email, número de orden) para desambiguar","Elegir el que tenga actividad más reciente","Elegir el primero de la lista","Procesar la operación para los tres por seguridad"],a:[0],m:false,e:"Múltiples matches → clarificación con identificadores adicionales, nunca selección heurística (riesgo de operar sobre la cuenta equivocada)."},
+{d:5,q:"El subagente de búsqueda web sufre un timeout investigando un tema complejo. ¿Qué diseño de propagación permite al coordinador recuperarse inteligentemente?",o:["Devolver contexto estructurado: tipo de fallo, query intentada, resultados parciales y enfoques alternativos","Retry automático con backoff dentro del subagente, devolviendo «search unavailable» genérico si se agota","Capturar el timeout y devolver un resultado vacío marcado como éxito","Propagar la excepción a un handler global que termine todo el workflow"],a:[0],m:false,e:"El contexto estructurado permite decidir: retry modificado, alternativa o continuar con parciales. Genérico oculta contexto; vacío-como-éxito suprime; terminar todo es desproporcionado."},
+{d:5,q:"Tras horas explorando un codebase enorme, el agente responde con «patrones típicos» genéricos en vez de las clases concretas que descubrió antes. ¿Qué combinaciones combaten esta degradación? (Elige 2)",o:["Mantener scratchpad files con hallazgos clave y referenciarlos en preguntas posteriores","Delegar investigaciones específicas a subagentes mientras el principal solo coordina (y usar /compact en sesiones largas)","Repetir la exploración completa desde cero cada vez que se degrade","Pasar a un modelo con ventana de contexto más grande"],a:[0,1],m:true,e:"Scratchpads persisten hallazgos a través de los límites de contexto; la delegación + /compact evitan que lo verboso sature el contexto principal. Re-explorar es despilfarro; más ventana no arregla la degradación de atención."},
+{d:5,q:"Tu pipeline de extracción reporta 97% de accuracy global y quieres reducir el review humano. ¿Paso previo correcto?",o:["Analizar accuracy por tipo de documento y por campo, y muestrear aleatoriamente extracciones de alta confianza — el agregado puede ocultar segmentos con mal desempeño","Reducir el review de inmediato: 97% supera cualquier estándar razonable","Aumentar el umbral de confianza global del 90% al 95%","Duplicar el equipo de revisores para procesar más volumen"],a:[0],m:false,e:"Las métricas agregadas enmascaran fallos por segmento. Validación segmentada + muestreo estratificado + confianza por campo calibrada, antes de automatizar."}
+];
+/* ================= ESTADO PERSISTENTE ================= */
+const LS = "ccarf_v1";
+let S = {studied:{}, srs:{}, practice:{}, exams:[], theme:"dark", examDate:""};
+try{ const raw = localStorage.getItem(LS); if(raw) S = Object.assign(S, JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(S)); }catch(e){} }
+if(S.theme==="light") document.documentElement.setAttribute("data-theme","light");
+
+const $ = s => document.querySelector(s);
+const esc = t => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const today = () => new Date().toISOString().slice(0,10);
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ================= NAVEGACIÓN ================= */
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.v)));
+function showView(v){
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.v===v));
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  $("#v-"+v).classList.add("active");
+  if(v==="dash") renderDash();
+  if(v==="study") renderStudy();
+  if(v==="flash") renderFlashHome();
+  if(v==="practice") renderPracticeHome();
+  if(v==="exam") renderExamHome();
+  window.scrollTo(0,0);
+}
+$("#themeBtn").addEventListener("click",()=>{
+  S.theme = S.theme==="dark"?"light":"dark"; save();
+  document.documentElement.setAttribute("data-theme", S.theme==="light"?"light":"");
+});
+
+/* ================= DASHBOARD ================= */
+function dueCards(){ const t=today(); return CARDS.filter((c,i)=>{const r=S.srs[i]; return !r || r.due<=t;}).length; }
+function renderDash(){
+  const studied = Object.values(S.studied).filter(Boolean).length;
+  const lastExams = S.exams.slice(-5);
+  const best = S.exams.length? Math.max(...S.exams.map(e=>e.score)) : null;
+  let pr = "";
+  for(const d of [1,2,3,4,5]){
+    const p = S.practice[d]||{r:0,t:0};
+    const pct = p.t? Math.round(100*p.r/p.t) : 0;
+    pr += `<tr><td><span class="pill d${d}">D${d}</span> ${DOMAINS[d].name}</td><td>${DOMAINS[d].w}%</td><td>${p.t? pct+"% ("+p.r+"/"+p.t+")":"—"}</td></tr>`;
+  }
+  let daysLeft = "";
+  if(S.examDate){
+    const diff = Math.ceil((new Date(S.examDate)-new Date(today()))/86400000);
+    daysLeft = diff>=0? `<div class="big" style="color:var(--accent)">${diff}</div><div class="muted">días para el examen</div>` : `<div class="muted">Fecha pasada</div>`;
+  }
+  $("#v-dash").innerHTML = `
+  <div class="grid grid3" style="margin-bottom:14px">
+    <div class="card" style="text-align:center"><div class="big">${studied}/${TEMAS.length}</div><div class="muted">temas dominados</div><div class="bar"><div style="width:${Math.round(100*studied/TEMAS.length)}%"></div></div></div>
+    <div class="card" style="text-align:center"><div class="big">${dueCards()}</div><div class="muted">tarjetas pendientes hoy</div><button class="btn sm" style="margin-top:8px" onclick="showView('flash')">Repasar</button></div>
+    <div class="card" style="text-align:center">${daysLeft || `<div class="muted" style="margin-bottom:6px">Fecha del examen</div><input type="date" id="examDate" value="${S.examDate}" style="background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:8px">`}</div>
+  </div>
+  <div class="card">
+    <h3>El examen de un vistazo</h3>
+    <p class="muted">60 preguntas · 120 min · aprueba con 720/1000 (escala) · 4 escenarios de un banco de 6 · Pearson VUE · $125</p>
+    <table style="margin-top:10px"><tr><th>Dominio</th><th>Peso</th><th>Tu práctica</th></tr>${pr}</table>
+  </div>
+  <div class="card">
+    <h3>Simulacros ${best!==null? `· mejor: <span class="${best>=720?'pass':'fail'}">${best}</span>`:""}</h3>
+    ${lastExams.length? "<table><tr><th>Fecha</th><th>Puntaje</th><th>Correctas</th><th>Resultado</th></tr>"+lastExams.map(e=>`<tr><td>${e.date}</td><td>${e.score}</td><td>${e.right}/${e.total}</td><td class="${e.score>=720?'pass':'fail'}">${e.score>=720?"APROBADO":"NO APROBADO"}</td></tr>`).join("")+"</table>" : `<p class="muted">Aún no has hecho simulacros. <a href="#" onclick="showView('exam');return false" style="color:var(--accent)">Empieza uno →</a></p>`}
+  </div>
+  <div class="card">
+    <h3>Reglas de oro (memorizar)</h3>
+    <ul style="font-size:.88rem;margin-left:18px;line-height:1.7">
+      <li>Garantía determinística → <b>código</b> (hooks, gates, tool_use+schema). Mejora probabilística → <b>prompt</b> (criterios, few-shot).</li>
+      <li>La descripción de la tool es el mecanismo #1 de selección → ante misrouting, primero mejora descripciones.</li>
+      <li>Subagentes: contexto aislado, paso explícito, resultados destilados, comunicación vía coordinador.</li>
+      <li>Elige la solución <b>proporcionada</b>: «primer paso» = bajo esfuerzo, alto impacto — no infraestructura nueva.</li>
+      <li>Batch = barato y lento (24h, sin SLA) → nunca para workflows bloqueantes.</li>
+      <li>Nullable > «no inventes»; el schema elimina errores de sintaxis, no semánticos.</li>
+      <li>Review independiente > auto-review; multi-pass > más contexto.</li>
+      <li>Distractores casi siempre incorrectos: confianza auto-reportada, análisis de sentimiento, instrucciones vagas, tope de iteraciones como parada, features inexistentes (CLAUDE_HEADLESS, --batch), «modelo más grande».</li>
+    </ul>
+  </div>`;
+  const ed = $("#examDate");
+  if(ed) ed.addEventListener("change",e=>{S.examDate=e.target.value; save(); renderDash();});
+}
+
+/* ================= ESTUDIO ================= */
+function renderStudy(){
+  let html = `<h2>Guía de estudio</h2><p class="muted" style="margin-bottom:14px">30 temas basados en el Exam Guide oficial v1.0. Marca cada tema cuando lo domines.</p>`;
+  for(const d of [1,2,3,4,5]){
+    const temas = TEMAS.filter(t=>t.d===d);
+    const done = temas.filter(t=>S.studied[t.id]).length;
+    html += `<div class="domacc" id="dom${d}">
+      <button onclick="this.parentElement.classList.toggle('open')">
+        <span class="pill d${d}">D${d} · ${DOMAINS[d].w}%</span> ${DOMAINS[d].name}
+        <span class="muted" style="margin-left:auto">${done}/${temas.length}</span>
+      </button>
+      <div class="body">` +
+      temas.map(t=>`<div class="tema" id="tema-${t.id.replace(".","_")}">
+        <button onclick="this.parentElement.classList.toggle('open')">
+          <span class="check ${S.studied[t.id]?'done':''}" onclick="event.stopPropagation();toggleStudied('${t.id}')">${S.studied[t.id]?"✓":""}</span>
+          <span><b>${t.id}</b> — ${t.t}</span>
+        </button>
+        <div class="content">${t.x}</div>
+      </div>`).join("") +
+      `</div></div>`;
+  }
+  $("#v-study").innerHTML = html;
+}
+function toggleStudied(id){
+  S.studied[id] = !S.studied[id]; save();
+  const el = document.getElementById("tema-"+id.replace(".","_"));
+  const wasOpen = el && el.classList.contains("open");
+  const openDoms = [1,2,3,4,5].filter(d=>{const x=document.getElementById("dom"+d);return x&&x.classList.contains("open");});
+  renderStudy();
+  openDoms.forEach(d=>{const x=document.getElementById("dom"+d); if(x)x.classList.add("open");});
+  if(wasOpen){const x=document.getElementById("tema-"+id.replace(".","_")); if(x)x.classList.add("open");}
+}
+
+/* ================= FLASHCARDS (SRS: cajas 0-4, intervalos 0/1/3/7/14 días) ================= */
+const INTERVALS = [0,1,3,7,14];
+let flashQueue = [], flashIdx = 0, flashShown = false;
+function renderFlashHome(){
+  const due = dueCards();
+  const counts = [0,0,0,0,0];
+  CARDS.forEach((c,i)=>{const b=(S.srs[i]&&S.srs[i].box)||0; counts[Math.min(b,4)]++;});
+  $("#v-flash").innerHTML = `<h2>Flashcards — repetición espaciada</h2>
+  <div class="card">
+    <p>${CARDS.length} tarjetas · <b>${due} pendientes hoy</b></p>
+    <p class="muted" style="margin:6px 0 12px">Intervalos: fallo → hoy mismo · bien → +${INTERVALS[1]}, +${INTERVALS[2]}, +${INTERVALS[3]}, +${INTERVALS[4]} días según nivel. Cajas: ${counts.map((c,i)=>`N${i}: ${c}`).join(" · ")}</p>
+    <div class="rowbtns" style="justify-content:flex-start">
+      <button class="btn" ${due?"":"disabled"} onclick="startFlash(false)">Repasar pendientes (${due})</button>
+      <button class="btn sec" onclick="startFlash(true)">Repasar todas</button>
+    </div>
+  </div>`;
+}
+function startFlash(all){
+  const t = today();
+  flashQueue = [];
+  CARDS.forEach((c,i)=>{ const r=S.srs[i]; if(all || !r || r.due<=t) flashQueue.push(i); });
+  flashQueue = shuffle(flashQueue);
+  flashIdx = 0; flashShown = false;
+  renderFlashCard();
+}
+function renderFlashCard(){
+  if(flashIdx >= flashQueue.length){
+    $("#v-flash").innerHTML = `<div class="card" style="text-align:center;padding:40px"><div class="big">🎉</div><h3>Sesión completada</h3><p class="muted">${flashQueue.length} tarjetas repasadas.</p><div class="rowbtns"><button class="btn" onclick="renderFlashHome()">Volver</button></div></div>`;
+    return;
+  }
+  const i = flashQueue[flashIdx], c = CARDS[i];
+  $("#v-flash").innerHTML = `
+  <div class="muted" style="margin-bottom:8px">Tarjeta ${flashIdx+1} / ${flashQueue.length} · <span class="pill d${c.d}">D${c.d}</span></div>
+  <div class="card flash" onclick="flipFlash()">
+    <div class="q">${esc(c.q)}</div>
+    ${flashShown? `<div class="a">${esc(c.a)}</div>` : `<div class="muted" style="margin-top:16px">(toca para ver la respuesta)</div>`}
+  </div>
+  ${flashShown? `<div class="rowbtns">
+    <button class="btn sec" style="border-color:var(--red);color:var(--red)" onclick="gradeFlash(0)">✗ Fallé</button>
+    <button class="btn sec" onclick="gradeFlash(1)">~ Difícil</button>
+    <button class="btn" style="background:var(--green)" onclick="gradeFlash(2)">✓ Bien</button>
+  </div>`:""}`;
+}
+function flipFlash(){ flashShown = !flashShown; renderFlashCard(); }
+function gradeFlash(g){
+  const i = flashQueue[flashIdx];
+  const r = S.srs[i] || {box:0,due:today()};
+  if(g===0) r.box = 0;
+  else if(g===1) r.box = Math.max(1, r.box);
+  else r.box = Math.min(4, r.box+1);
+  const d = new Date(); d.setDate(d.getDate()+INTERVALS[r.box]);
+  r.due = d.toISOString().slice(0,10);
+  S.srs[i] = r; save();
+  if(g===0) flashQueue.push(i); // repite hoy al final
+  flashIdx++; flashShown = false;
+  renderFlashCard();
+}
+
+/* ================= PRÁCTICA POR DOMINIO ================= */
+let pQueue = [], pIdx = 0, pSel = [], pDone = false;
+function renderPracticeHome(){
+  let btns = [1,2,3,4,5].map(d=>{
+    const n = QUESTIONS.filter(q=>q.d===d).length;
+    const p = S.practice[d]||{r:0,t:0};
+    return `<div class="card"><span class="pill d${d}">D${d} · ${DOMAINS[d].w}%</span>
+      <h3 style="margin-top:8px;font-size:.92rem">${DOMAINS[d].name}</h3>
+      <p class="muted">${n} preguntas · aciertos: ${p.t?Math.round(100*p.r/p.t)+"%":"—"}</p>
+      <button class="btn sm" style="margin-top:8px" onclick="startPractice(${d})">Practicar</button></div>`;
+  }).join("");
+  $("#v-practice").innerHTML = `<h2>Práctica por dominio</h2>
+  <p class="muted" style="margin-bottom:14px">Feedback inmediato con explicación tras cada pregunta.</p>
+  <div class="grid grid2">${btns}
+  <div class="card"><span class="pill">TODO</span><h3 style="margin-top:8px;font-size:.92rem">Mezcla de todos los dominios</h3><p class="muted">${QUESTIONS.length} preguntas</p><button class="btn sm" style="margin-top:8px" onclick="startPractice(0)">Practicar</button></div></div>`;
+}
+function startPractice(d){
+  pQueue = shuffle(QUESTIONS.map((q,i)=>i).filter(i=>d===0||QUESTIONS[i].d===d));
+  pIdx = 0; pSel = []; pDone = false;
+  renderPracticeQ();
+}
+function renderPracticeQ(){
+  if(pIdx >= pQueue.length){
+    $("#v-practice").innerHTML = `<div class="card" style="text-align:center;padding:40px"><h3>Práctica completada</h3><div class="rowbtns"><button class="btn" onclick="renderPracticeHome()">Volver</button></div></div>`;
+    return;
+  }
+  const qi = pQueue[pIdx], q = QUESTIONS[qi];
+  const need = q.a.length;
+  $("#v-practice").innerHTML = `
+  <div class="muted" style="margin-bottom:8px">Pregunta ${pIdx+1} / ${pQueue.length} · <span class="pill d${q.d}">D${q.d}</span>${q.m?`<span class="tag multi">elige ${need}</span>`:""}</div>
+  <div class="card">
+    <p style="font-weight:600;margin-bottom:14px">${esc(q.q)}</p>
+    ${q.o.map((o,i)=>{
+      let cls = "qopt";
+      if(pDone){ if(q.a.includes(i)) cls+=" ok"; else if(pSel.includes(i)) cls+=" bad"; }
+      else if(pSel.includes(i)) cls+=" sel";
+      return `<button class="${cls}" ${pDone?"disabled":""} onclick="pickP(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`;
+    }).join("")}
+    ${pDone? `<div class="expl"><b>${pSel.length===q.a.length && pSel.every(i=>q.a.includes(i))?"✓ Correcto.":"✗ Incorrecto."}</b> ${esc(q.e)}</div>
+    <div class="rowbtns" style="justify-content:flex-end"><button class="btn" onclick="nextP()">Siguiente →</button></div>`
+    : `<div class="rowbtns" style="justify-content:flex-end"><button class="btn" ${pSel.length===need?"":"disabled"} onclick="checkP()">Comprobar</button></div>`}
+  </div>`;
+}
+function pickP(i){
+  const q = QUESTIONS[pQueue[pIdx]];
+  if(pDone) return;
+  if(q.m){ pSel = pSel.includes(i)? pSel.filter(x=>x!==i) : (pSel.length<q.a.length? pSel.concat(i) : pSel); }
+  else pSel = [i];
+  renderPracticeQ();
+}
+function checkP(){
+  const q = QUESTIONS[pQueue[pIdx]];
+  const ok = pSel.length===q.a.length && pSel.every(i=>q.a.includes(i));
+  const st = S.practice[q.d]||{r:0,t:0};
+  st.t++; if(ok) st.r++;
+  S.practice[q.d]=st; save();
+  pDone = true; renderPracticeQ();
+}
+function nextP(){ pIdx++; pSel=[]; pDone=false; renderPracticeQ(); }
+
+/* ================= SIMULACRO (60 preguntas, 120 min) ================= */
+let ex = null, exTimer = null;
+function renderExamHome(){
+  $("#v-exam").innerHTML = `<h2>Simulacro de examen</h2>
+  <div class="card">
+    <p><b>${QUESTIONS.length} preguntas · 120 minutos.</b> Sin feedback hasta el final, como el examen real. El puntaje se convierte a la escala 100–1.000 (aprueba: 720). Distribución por dominio según los pesos oficiales.</p>
+    <p class="muted" style="margin-top:8px">Consejo: no hay penalización por adivinar — responde TODAS. Marca y sigue si dudas (2 min/pregunta).</p>
+    <div class="rowbtns" style="justify-content:flex-start;margin-top:12px"><button class="btn" onclick="startExam()">Iniciar simulacro</button></div>
+  </div>`;
+}
+function startExam(){
+  ex = { order: shuffle(QUESTIONS.map((q,i)=>i)), answers:{}, idx:0, end: Date.now()+120*60*1000 };
+  clearInterval(exTimer);
+  exTimer = setInterval(()=>{ if(!ex) return clearInterval(exTimer); if(Date.now()>=ex.end) finishExam(); else updTimer(); },1000);
+  renderExamQ();
+}
+function updTimer(){
+  const el = document.getElementById("exTimer"); if(!el||!ex) return;
+  const s = Math.max(0, Math.floor((ex.end-Date.now())/1000));
+  el.textContent = String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+  el.classList.toggle("low", s<600);
+}
+function renderExamQ(){
+  const qi = ex.order[ex.idx], q = QUESTIONS[qi];
+  const sel = ex.answers[qi]||[];
+  const need = q.a.length;
+  $("#v-exam").innerHTML = `
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+    <span class="muted">Pregunta ${ex.idx+1} / ${ex.order.length}${q.m?` <span class="tag multi">elige ${need}</span>`:""}</span>
+    <span class="timer" id="exTimer" style="margin-left:auto">--:--</span>
+    <button class="btn sec sm" onclick="if(confirm('¿Entregar el examen ahora?'))finishExam()">Entregar</button>
+  </div>
+  <div class="navgrid">${ex.order.map((oq,i)=>`<button class="${ex.answers[oq]&&ex.answers[oq].length?'answered':''} ${i===ex.idx?'current':''}" onclick="ex.idx=${i};renderExamQ()">${i+1}</button>`).join("")}</div>
+  <div class="card">
+    <p style="font-weight:600;margin-bottom:14px">${esc(q.q)}</p>
+    ${q.o.map((o,i)=>`<button class="qopt ${sel.includes(i)?'sel':''}" onclick="pickEx(${qi},${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join("")}
+    <div class="rowbtns" style="justify-content:space-between">
+      <button class="btn sec" ${ex.idx===0?"disabled":""} onclick="ex.idx--;renderExamQ()">← Anterior</button>
+      <button class="btn" ${ex.idx===ex.order.length-1?"disabled":""} onclick="ex.idx++;renderExamQ()">Siguiente →</button>
+    </div>
+  </div>`;
+  updTimer();
+}
+function pickEx(qi,i){
+  const q = QUESTIONS[qi];
+  let sel = ex.answers[qi]||[];
+  if(q.m){ sel = sel.includes(i)? sel.filter(x=>x!==i) : (sel.length<q.a.length? sel.concat(i) : sel); }
+  else sel = [i];
+  ex.answers[qi] = sel;
+  renderExamQ();
+}
+function finishExam(){
+  clearInterval(exTimer);
+  if(!ex) return;
+  let right = 0; const byD = {1:{r:0,t:0},2:{r:0,t:0},3:{r:0,t:0},4:{r:0,t:0},5:{r:0,t:0}};
+  const wrong = [];
+  ex.order.forEach(qi=>{
+    const q = QUESTIONS[qi], sel = ex.answers[qi]||[];
+    const ok = sel.length===q.a.length && sel.every(i=>q.a.includes(i));
+    byD[q.d].t++; if(ok){right++; byD[q.d].r++;} else wrong.push({qi,sel});
+  });
+  const total = ex.order.length;
+  const score = Math.round(100 + 900*right/total);
+  S.exams.push({date:today(), score, right, total}); save();
+  const pass = score>=720;
+  $("#v-exam").innerHTML = `
+  <div class="card" style="text-align:center">
+    <div class="score-ring ${pass?'pass':'fail'}">${score}</div>
+    <p style="font-weight:700;margin:4px 0" class="${pass?'pass':'fail'}">${pass?"APROBADO ✓":"NO APROBADO"} <span class="muted" style="font-weight:400">(corte: 720)</span></p>
+    <p class="muted">${right}/${total} correctas</p>
+  </div>
+  <div class="card"><h3>Desempeño por dominio</h3>
+    <table><tr><th>Dominio</th><th>Correctas</th><th>%</th></tr>
+    ${[1,2,3,4,5].map(d=>{const x=byD[d];const pct=x.t?Math.round(100*x.r/x.t):0;
+      return `<tr><td><span class="pill d${d}">D${d}</span> ${DOMAINS[d].name}</td><td>${x.r}/${x.t}</td><td style="color:${pct>=70?'var(--green)':'var(--red)'}">${pct}%</td></tr>`;}).join("")}
+    </table>
+  </div>
+  ${wrong.length? `<div class="card"><h3>Revisión de errores (${wrong.length})</h3>`+
+    wrong.map(w=>{const q=QUESTIONS[w.qi];
+      return `<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+      <p style="font-weight:600"><span class="pill d${q.d}">D${q.d}</span> ${esc(q.q)}</p>
+      <p style="margin-top:6px;font-size:.87rem"><span style="color:var(--red)">Tu respuesta:</span> ${w.sel.length? w.sel.map(i=>String.fromCharCode(65+i)+". "+esc(q.o[i])).join(" · ") : "(sin responder)"}</p>
+      <p style="font-size:.87rem"><span style="color:var(--green)">Correcta:</span> ${q.a.map(i=>String.fromCharCode(65+i)+". "+esc(q.o[i])).join(" · ")}</p>
+      <div class="expl">${esc(q.e)}</div></div>`;}).join("")+"</div>" : ""}
+  <div class="rowbtns"><button class="btn" onclick="renderExamHome()">Nuevo simulacro</button><button class="btn sec" onclick="showView('dash')">Ir al inicio</button></div>`;
+  ex = null;
+  window.scrollTo(0,0);
+}
+
+/* init */
+renderDash();
+</script>
+</body>
+</html>
