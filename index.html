@@ -86,6 +86,30 @@ td,th{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
 .frase{background:linear-gradient(135deg,rgba(217,119,72,.16),rgba(91,141,217,.13));border:1px solid var(--accent);border-radius:10px;padding:11px 16px;margin:14px 0 4px;font-weight:700;font-size:.92rem;text-align:center}
 .diagram{margin:12px 0;overflow-x:auto}
 .diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.duotop{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.duostat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-weight:800;font-size:1.05rem}
+.duostat span{display:block;font-size:.7rem;font-weight:600;color:var(--muted)}
+.duopath{display:flex;flex-direction:column;align-items:center;gap:14px;padding-bottom:40px}
+.duodom{align-self:stretch;text-align:center;font-weight:800;margin:18px 0 6px;padding:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px}
+.duorow{display:flex;align-items:center;gap:12px}
+.duonode{width:64px;height:64px;border-radius:50%;border:none;font-size:1.6rem;cursor:pointer;background:var(--panel2);box-shadow:0 4px 0 var(--border);flex-shrink:0}
+.duonode:active{transform:translateY(2px);box-shadow:0 2px 0 var(--border)}
+.duonode.done{background:var(--yellow);box-shadow:0 4px 0 #a8842f}
+.duonode.cur{background:var(--accent);box-shadow:0 4px 0 #9c5230;animation:pulse 1.6s infinite}
+.duonode.locked{opacity:.35;cursor:not-allowed;filter:grayscale(1)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.duolabel{font-size:.82rem;color:var(--muted);max-width:280px;text-align:left}
+.hearts{font-size:1.05rem;letter-spacing:2px}
+.duofeed{border-radius:12px;padding:14px 16px;margin-top:14px;font-weight:700;display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.duofeed.ok{background:rgba(76,175,125,.15);border:2px solid var(--green);color:var(--green)}
+.duofeed.bad{background:rgba(224,93,93,.13);border:2px solid var(--red);color:var(--red)}
+.duofeed .muted{font-weight:400;color:var(--muted)}
+.matchcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pairbtn{display:block;width:100%;text-align:left;background:var(--panel2);border:2px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.78rem;line-height:1.35}
+.pairbtn.sel{border-color:var(--blue);background:rgba(91,141,217,.14)}
+.pairbtn.ok{border-color:var(--green);opacity:.45;cursor:default}
+.ordseq{min-height:40px;background:var(--panel2);border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:.85rem}
+.ordpick{padding:3px 0;font-weight:600}
 @media(max-width:640px){header h1{font-size:.9rem}nav button{padding:6px 8px;font-size:.8rem}}
 </style>
 </head>
@@ -95,6 +119,7 @@ td,th{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
   <nav>
     <button data-v="dash" class="active">Inicio</button>
     <button data-v="study">Estudio</button>
+    <button data-v="duo">🦉 Camino</button>
     <button data-v="flash">Flashcards</button>
     <button data-v="practice">Práctica</button>
     <button data-v="exam">Simulacro</button>
@@ -104,6 +129,7 @@ td,th{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left}
 <main>
   <section id="v-dash" class="view active"></section>
   <section id="v-study" class="view"></section>
+  <section id="v-duo" class="view"></section>
   <section id="v-flash" class="view"></section>
   <section id="v-practice" class="view"></section>
   <section id="v-exam" class="view"></section>
@@ -525,6 +551,7 @@ function showView(v){
   $("#v-"+v).classList.add("active");
   if(v==="dash") renderDash();
   if(v==="study") renderStudy();
+  if(v==="duo"){DU=null;renderDuoHome();}
   if(v==="flash") renderFlashHome();
   if(v==="practice") renderPracticeHome();
   if(v==="exam") renderExamHome();
@@ -826,6 +853,208 @@ function finishExam(){
       <div class="expl">${esc(q.e)}</div></div>`;}).join("")+"</div>" : ""}
   <div class="rowbtns"><button class="btn" onclick="renderExamHome()">Nuevo simulacro</button><button class="btn sec" onclick="showView('dash')">Ir al inicio</button></div>`;
   ex = null;
+  window.scrollTo(0,0);
+}
+
+/* ================= MODO CAMINO (estilo Duolingo) ================= */
+if(!S.duo) S.duo={xp:0,streak:0,last:"",done:{},cp:{}};
+
+const BLANKS={
+"1.1":{t:"El loop vive y muere por ___: tool_use = sigue, end_turn = fin.",c:"stop_reason",w:["max_tokens","tool_choice","temperature"]},
+"1.2":{t:"El ___ dirige y no cocina; los subagentes no comparten memoria entre sí.",c:"coordinador",w:["subagente","evaluador","cliente"]},
+"1.3":{t:"Para poder lanzar subagentes, ___ debe estar en allowedTools.",c:"Task",w:["Bash","fork_session","Grep"]},
+"1.4":{t:"Si debe cumplirse SIEMPRE, lo garantiza ___, no un prompt amable.",c:"código (un hook)",w:["few-shot","el system prompt","la temperatura"]},
+"1.5":{t:"___ intercepta y normaliza los resultados antes de que el modelo los procese.",c:"PostToolUse",w:["PreToolUse","tool_choice","--resume"]},
+"1.6":{t:"Tarea predecible → ___; tarea abierta → descomposición dinámica.",c:"prompt chaining",w:["batch API","fork_session","tool_choice any"]},
+"1.7":{t:"Para comparar dos enfoques desde la misma base de análisis: ___.",c:"fork_session",w:["--resume","/compact","PostToolUse"]},
+"2.1":{t:"El mecanismo #1 que usa el LLM para elegir herramientas es ___.",c:"la descripción de la tool",w:["el orden de la lista","el nombre corto","los few-shot examples"]},
+"2.2":{t:"Un buen error estructurado incluye errorCategory, descripción legible y ___.",c:"isRetryable",w:["el stack trace completo","un código HTTP","el prompt original"]},
+"2.3":{t:"Para obligar a llamar alguna herramienta (la que sea): tool_choice ___.",c:"\"any\"",w:["\"auto\"","\"forced\"","\"required\""]},
+"2.4":{t:"La configuración MCP compartida del equipo vive en ___.",c:".mcp.json",w:["~/.claude.json","CLAUDE.md",".claude/rules/"]},
+"2.5":{t:"Buscar contenido DENTRO de los archivos → ___.",c:"Grep",w:["Glob","Read","Edit"]},
+"3.1":{t:"Los estándares del equipo van en el CLAUDE.md de nivel ___.",c:"proyecto",w:["usuario","directorio","global"]},
+"3.2":{t:"Para que una skill corra aislada sin contaminar la conversación: ___.",c:"context: fork",w:["allowed-tools","argument-hint","context: isolated"]},
+"3.3":{t:"Las rules con ___ siguen al tipo de archivo, no a la carpeta.",c:"glob patterns",w:["@import","frontmatter vacío","nombres de rama"]},
+"3.4":{t:"Migración de 45+ archivos con decisiones de arquitectura → ___.",c:"plan mode",w:["ejecución directa","batch API","/compact"]},
+"3.5":{t:"Cuando la prosa produce resultados inconsistentes, lo más efectivo es dar ___.",c:"2-3 ejemplos input/output",w:["instrucciones más largas","mayor temperatura","un tope de iteraciones"]},
+"3.6":{t:"Para que Claude Code no cuelgue el pipeline esperando input: flag ___.",c:"-p (--print)",w:["--batch","CLAUDE_HEADLESS=true","--headless"]},
+"4.1":{t:"«Sé conservador» falla; funcionan los criterios ___ con ejemplos.",c:"categóricos y específicos",w:["de confianza auto-reportada","de sentimiento","de longitud"]},
+"4.2":{t:"Los few-shot examples deben mostrar el ___ de por qué se eligió una acción.",c:"razonamiento",w:["costo","tiempo de ejecución","modelo usado"]},
+"4.3":{t:"tool_use + JSON schema elimina los errores de ___, no los semánticos.",c:"sintaxis",w:["lógica","costo","latencia"]},
+"4.4":{t:"El retry con feedback es inútil cuando ___.",c:"el dato no está en el documento",w:["el error es de formato","hay feedback específico","el schema es estricto"]},
+"4.5":{t:"La Batch API: 50% de descuento, ventana de hasta ___ y sin SLA.",c:"24 horas",w:["1 hora","15 minutos","72 horas"]},
+"4.6":{t:"El mejor review del código generado lo hace ___.",c:"una instancia independiente",w:["la misma sesión con extended thinking","el mismo agente tres veces","un prompt de autocrítica"]},
+"5.1":{t:"Montos, fechas e IDs viven en un bloque de ___ fuera del historial resumido.",c:"case facts",w:["few-shot examples","system prompt","tool results"]},
+"5.2":{t:"El cliente pide un humano explícitamente → ___.",c:"escalar de inmediato",w:["intentar resolver primero","medir el sentimiento","pedir confianza 1-10"]},
+"5.3":{t:"El error propagado incluye tipo, qué se intentó, alternativas y ___.",c:"resultados parciales",w:["el stack trace","una disculpa","el historial completo"]},
+"5.4":{t:"Contra la degradación de contexto en sesiones largas: scratchpads, subagentes y ___.",c:"/compact",w:["/memory","--print","tool_choice any"]},
+"5.5":{t:"Un 97% de accuracy global puede ocultar ___.",c:"mal desempeño por segmento",w:["errores de sintaxis","costos altos","latencia variable"]},
+"5.6":{t:"Estadísticas en conflicto de fuentes creíbles → ___.",c:"anotar ambas con atribución",w:["elegir la más reciente","promediarlas","descartar ambas"]}
+};
+
+const ORDER={
+"1.1":["Enviar request a Claude","Inspeccionar stop_reason","tool_use → ejecutar la herramienta","Añadir tool_result al historial","Reenviar (fin si end_turn)"],
+"1.3":["Incluir Task en allowedTools","Descomponer la tarea","Emitir varios Task calls en UNA respuesta","Recibir resultados destilados"],
+"1.4":["El cliente pide un refund","El gate verifica el ID de cliente","Sin ID → bloquear y exigir get_customer","Con ID verificado → process_refund"],
+"3.5":["Escribir la suite de tests","Claude implementa","Compartir los fallos exactos","Iterar hasta que pasen"],
+"3.6":["El CI invoca claude -p","Genera hallazgos con --json-schema","Se publican comentarios en el PR"],
+"4.4":["Validar la extracción","Falla el schema (Pydantic)","Reenviar doc + fallo + error exacto","El modelo se corrige"],
+"5.3":["El subagente falla","Intenta recuperación local","Propaga tipo + intento + parciales","El coordinador decide"]
+};
+
+const PATH=(()=>{const p=[];for(const d of [1,2,3,4,5]){TEMAS.filter(t=>t.d===d).forEach(t=>p.push({k:t.id,d,t}));p.push({k:"cp"+d,d,cp:true});}return p;})();
+function duoDone(k){return k.startsWith("cp")? !!S.duo.cp[k.slice(2)] : !!S.duo.done[k];}
+function duoUnlocked(i){for(let j=0;j<i;j++) if(!duoDone(PATH[j].k)) return false; return true;}
+
+let DU=null;
+function renderDuoHome(){
+  const total=PATH.length, done=PATH.filter(p=>duoDone(p.k)).length;
+  let cur=PATH.findIndex(p=>!duoDone(p.k)); if(cur<0)cur=-1;
+  let html=`<div class="duotop">
+    <div class="duostat">🔥 ${S.duo.streak}<span>racha (días)</span></div>
+    <div class="duostat">⚡ ${S.duo.xp}<span>XP total</span></div>
+    <div class="duostat">🏁 ${done}/${total}<span>lecciones</span></div>
+  </div><div class="duopath">`;
+  let lastD=0;
+  PATH.forEach((p,i)=>{
+    if(p.d!==lastD){lastD=p.d;html+=`<div class="duodom"><span class="pill d${p.d}">D${p.d} · ${DOMAINS[p.d].w}%</span> ${DOMAINS[p.d].name}</div>`;}
+    const st=duoDone(p.k)?"done":(i===cur?"cur":(duoUnlocked(i)?"":"locked"));
+    const off=[0,-70,50,-40,70,-55][i%6];
+    const icon=p.cp?"🏆":(EXTRA[p.k]?EXTRA[p.k].e:"📘");
+    const label=p.cp?`<b>Checkpoint D${p.d}</b> — 6 preguntas de examen`:`<b>${p.k}</b> ${p.t.t}`;
+    html+=`<div class="duorow" style="transform:translateX(${off}px)">
+      <button class="duonode ${st}" ${st==="locked"?"disabled":""} onclick="startDuo('${p.k}')">${icon}</button>
+      <div class="duolabel">${label}${duoDone(p.k)?" ✅":""}</div></div>`;
+  });
+  html+=`</div>`;
+  $("#v-duo").innerHTML=html;
+}
+
+function exBlank(k){const b=BLANKS[k];return{type:"mc",q:b.t.replace("___","______"),c:b.c,opts:shuffle([b.c].concat(b.w))};}
+function exMcCards(d,n){
+  const pool=shuffle(CARDS.map((c,i)=>i).filter(i=>CARDS[i].d===d));const out=[];
+  for(let j=0;j<n&&j<pool.length;j++){
+    const ci=pool[j];
+    const wrong=shuffle(pool.filter(x=>x!==ci)).slice(0,2).map(i=>CARDS[i].a);
+    out.push({type:"mc",q:CARDS[ci].q,c:CARDS[ci].a,opts:shuffle([CARDS[ci].a].concat(wrong))});
+  }
+  return out;
+}
+function exMatch(d,k){
+  let ts=TEMAS.filter(t=>t.d===d&&EXTRA[t.id]);
+  ts=shuffle(ts).slice(0,4);
+  if(k&&!ts.find(t=>t.id===k)){const t=TEMAS.find(x=>x.id===k);if(t)ts[0]=t;}
+  const pairs=ts.map(t=>({l:EXTRA[t.id].e+" "+t.t,r:EXTRA[t.id].f}));
+  return{type:"match",pairs,right:shuffle(pairs.map((p,i)=>i)),doneL:{},selL:-1};
+}
+function exExam(d){
+  const pool=QUESTIONS.map((q,i)=>i).filter(i=>QUESTIONS[i].d===d&&!QUESTIONS[i].m);
+  const q=QUESTIONS[pool[Math.floor(Math.random()*pool.length)]];
+  return{type:"mc",q:q.q,c:q.o[q.a[0]],opts:shuffle(q.o.slice()),exp:q.e};
+}
+
+function startDuo(k){
+  const ex=[];
+  if(k.startsWith("cp")){
+    const d=+k.slice(2);
+    for(let i=0;i<6;i++) ex.push(exExam(d));
+  }else{
+    const t=TEMAS.find(x=>x.id===k), d=t.d;
+    ex.push(exBlank(k));
+    exMcCards(d,2).forEach(e=>ex.push(e));
+    if(ORDER[k]) ex.push({type:"order",steps:ORDER[k]}); else ex.push(exMatch(d,k));
+    ex.push(exExam(d));
+  }
+  DU={k,queue:ex,idx:0,hearts:3,xp:0,answered:false,ok:false,sel:null,seq:[]};
+  renderDuo();
+}
+
+function renderDuo(){
+  if(!DU)return;
+  if(DU.hearts<=0){
+    $("#v-duo").innerHTML=`<div class="card" style="text-align:center;padding:44px"><div style="font-size:3rem">💔</div><h3>Te quedaste sin corazones</h3><p class="muted" style="margin:8px 0">Repasa el tema en la guía de estudio y vuelve a intentarlo.</p><div class="rowbtns"><button class="btn" onclick="startDuo('${DU.k}')">Reintentar</button><button class="btn sec" onclick="DU=null;renderDuoHome()">Salir</button></div></div>`;return;
+  }
+  if(DU.idx>=DU.queue.length)return finishDuo();
+  const e=DU.queue[DU.idx];
+  if(e.type==="order"&&!e.shuf)e.shuf=shuffle(e.steps.map((s,i)=>i));
+  const prog=Math.round(100*DU.idx/DU.queue.length);
+  let body="",foot="";
+  if(e.type==="mc"){
+    body=`<p style="font-weight:700;margin-bottom:14px">${esc(e.q)}</p>`+
+      e.opts.map((o,i)=>{
+        let cls="qopt";
+        if(DU.answered){if(o===e.c)cls+=" ok";else if(i===DU.sel)cls+=" bad";}
+        else if(i===DU.sel)cls+=" sel";
+        return `<button class="${cls}" ${DU.answered?"disabled":""} onclick="duoSel(${i})">${esc(o)}</button>`;
+      }).join("");
+    foot=DU.answered
+      ?`<div class="duofeed ${DU.ok?'ok':'bad'}"><div>${DU.ok?"¡Correcto! 🎉":"Correcta: "+esc(e.c)}${(!DU.ok&&e.exp)?`<br><span class="muted">${esc(e.exp)}</span>`:""}</div><button class="btn" onclick="duoNext()">Continuar</button></div>`
+      :`<div class="rowbtns" style="justify-content:flex-end"><button class="btn" ${DU.sel==null?"disabled":""} onclick="duoCheck()">Comprobar</button></div>`;
+  }else if(e.type==="order"){
+    body=`<p style="font-weight:700;margin-bottom:8px">Toca los pasos en el orden correcto:</p>
+      <div class="ordseq">${DU.seq.length?DU.seq.map((si,n)=>`<div class="ordpick">${n+1}. ${esc(e.steps[si])}</div>`).join(""):'<span class="muted">toca los pasos abajo…</span>'}</div>`+
+      e.shuf.map(si=>`<button class="qopt" ${DU.seq.includes(si)||DU.answered?"disabled":""} onclick="duoPickOrd(${si})">${esc(e.steps[si])}</button>`).join("")+
+      (DU.seq.length&&!DU.answered?`<div class="rowbtns" style="justify-content:flex-start"><button class="btn sec sm" onclick="DU.seq=[];renderDuo()">Reiniciar</button></div>`:"");
+    foot=DU.answered
+      ?`<div class="duofeed ${DU.ok?'ok':'bad'}"><div>${DU.ok?"¡Orden perfecto! 🎉":"Orden correcto:<br><span class='muted'>"+e.steps.map((s,i)=>(i+1)+". "+esc(s)).join("<br>")+"</span>"}</div><button class="btn" onclick="duoNext()">Continuar</button></div>`
+      :`<div class="rowbtns" style="justify-content:flex-end"><button class="btn" ${DU.seq.length===e.steps.length?"":"disabled"} onclick="duoCheckOrd()">Comprobar</button></div>`;
+  }else if(e.type==="match"){
+    body=`<p style="font-weight:700;margin-bottom:10px">Empareja cada tema con su frase clave:</p><div class="matchcols"><div>`+
+      e.pairs.map((p,i)=>`<button class="pairbtn ${e.doneL[i]?'ok':''} ${e.selL===i?'sel':''}" ${e.doneL[i]?"disabled":""} onclick="duoSelL(${i})">${esc(p.l)}</button>`).join("")+
+      `</div><div>`+
+      e.right.map(ri=>`<button class="pairbtn ${e.doneL[ri]?'ok':''}" ${e.doneL[ri]?"disabled":""} onclick="duoSelR(${ri})">${esc(e.pairs[ri].r)}</button>`).join("")+
+      `</div></div><p class="muted" style="font-size:.78rem">Toca uno de la izquierda y luego su pareja de la derecha.</p>`;
+  }
+  $("#v-duo").innerHTML=`
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <button class="btn sec sm" onclick="if(confirm('¿Salir de la lección? Perderás el progreso de esta lección.')){DU=null;renderDuoHome()}">✕</button>
+    <div class="bar" style="flex:1;height:12px"><div style="width:${prog}%"></div></div>
+    <div class="hearts">${"❤️".repeat(DU.hearts)}${"🤍".repeat(3-DU.hearts)}</div>
+  </div>
+  <div class="card">${body}${foot}</div>`;
+}
+function duoSel(i){if(DU.answered)return;DU.sel=i;renderDuo();}
+function duoCheck(){
+  const e=DU.queue[DU.idx];
+  DU.ok=(e.opts[DU.sel]===e.c);
+  if(DU.ok){DU.xp+=e.requeued?5:10;}
+  else{DU.hearts--;DU.queue.push(Object.assign({},e,{requeued:true}));}
+  DU.answered=true;renderDuo();
+}
+function duoPickOrd(si){if(DU.answered)return;DU.seq.push(si);renderDuo();}
+function duoCheckOrd(){
+  const e=DU.queue[DU.idx];
+  DU.ok=DU.seq.every((si,n)=>si===n);
+  if(DU.ok){DU.xp+=e.requeued?5:10;}
+  else{DU.hearts--;DU.queue.push(Object.assign({},e,{requeued:true,shuf:null}));}
+  DU.answered=true;renderDuo();
+}
+function duoSelL(i){const e=DU.queue[DU.idx];e.selL=(e.selL===i?-1:i);renderDuo();}
+function duoSelR(ri){
+  const e=DU.queue[DU.idx];if(e.selL<0)return;
+  if(ri===e.selL){
+    e.doneL[ri]=true;e.selL=-1;
+    if(Object.keys(e.doneL).length===e.pairs.length){DU.xp+=10;DU.idx++;DU.answered=false;DU.sel=null;DU.seq=[];}
+  }else{e.selL=-1;}
+  renderDuo();
+}
+function duoNext(){DU.idx++;DU.answered=false;DU.sel=null;DU.seq=[];renderDuo();}
+function finishDuo(){
+  const k=DU.k,xp=DU.xp,perfect=(DU.hearts===3);
+  if(k.startsWith("cp"))S.duo.cp[k.slice(2)]=true;else S.duo.done[k]=true;
+  S.duo.xp+=xp;
+  const t=today();
+  if(S.duo.last!==t){
+    const y=new Date();y.setDate(y.getDate()-1);
+    S.duo.streak=(S.duo.last===y.toISOString().slice(0,10))?S.duo.streak+1:1;
+    S.duo.last=t;
+  }
+  save();DU=null;
+  $("#v-duo").innerHTML=`<div class="card" style="text-align:center;padding:44px">
+    <div style="font-size:3.4rem">${perfect?"🌟":"🎉"}</div>
+    <h2>¡Lección completada!</h2>
+    <p style="font-size:1.15rem;margin:10px 0">⚡ +${xp} XP · 🔥 racha: ${S.duo.streak} día${S.duo.streak===1?"":"s"}${perfect?" · 💯 ¡sin errores!":""}</p>
+    <div class="rowbtns"><button class="btn" onclick="renderDuoHome()">Seguir el camino 🦉</button></div></div>`;
   window.scrollTo(0,0);
 }
 
